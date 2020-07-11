@@ -1,9 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// <summary>
+// Example of a POCO Base object.
+// </summary>
+// <copyright file="IdPropertyAttribute.cs" company="">
+// Copyright (C) 2020 Maaike Tromp
 
 namespace DataObjectBaseExample.Attributes
 {
+    using System;
+
     /// <summary>
     /// Identifies an Id Property (or properties) of a plain DataObject.
     /// </summary>

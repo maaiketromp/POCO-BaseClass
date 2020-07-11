@@ -1,26 +1,34 @@
-﻿namespace DataObjectBaseExample.DataObjects
+﻿// <summary>
+// Example of a POCO Base object.
+// </summary>
+// <copyright file="DataObjectBase.cs" company="">
+// Copyright (C) 2020 Maaike Tromp
+
+namespace DataObjectBaseExample.DataObjects
 {
     using System;
+    using System.Collections.Generic;
+    using System.Data;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
+    using Microsoft.Data.SqlClient;
     using DataObjectBaseExample.Attributes;
     using DataObjectBaseExample.Data;
     using DataObjectBaseExample.Interfaces;
-    using Microsoft.Data.SqlClient;
-
+    using DataObjectBaseExample.Extensions;
 
     /// <summary>
     /// A base object enabling POCO's to populate an object, to populate by id, to update an object and to update a single property.
     /// </summary>
-    public class DataObjectBase : IPopulatable
+    public abstract class DataObjectBase : IPopulatable
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
         /// <param name="db">The databaseconnection.</param>
         /// <param name="activeLoading">A value indicating this object's loading state.</param>
-        public DataObjectBase(DatabaseConnector db, bool activeLoading)
+        public DataObjectBase(IDatabaseConnector db, bool activeLoading)
         {
             this.Db = db;
             this.ActiveLoading = activeLoading;
@@ -32,7 +40,7 @@
         /// <summary>
         /// Gets Database crudclass instance.
         /// </summary>
-        protected DatabaseConnector Db { get; }
+        protected IDatabaseConnector Db { get; }
 
         /// <summary>
         /// Gets a value indicating whether the object is now populating.
@@ -76,9 +84,9 @@
         /// Populates this object with a provided SqlDataReader.
         /// </summary>
         /// <param name="rdr">A Datareader containing data for this object.</param>
-        protected void Populate(SqlDataReader rdr)
+        protected void Populate(Dictionary<string, DatabaseObject> propertyData)
         {
-            this.PopulateInternal(rdr);
+            this.PopulateInternal(propertyData);
         }
 
         /// <summary>
@@ -88,12 +96,17 @@
         protected void PopulateById(int id)
         {
             Type t = this.GetType();
-            using SqlDataReader rdr = this.Db.PrepareAndExecuteQuery(
-                    commandText: $"SELECT * FROM {t.Name} WHERE Id = {id}");
-            if (rdr.Read())
+            string sql = $"SELECT * FROM {t.Name} WHERE Id = @Id";
+            SqlParameter[] parameters = new SqlParameter[]
             {
-                this.PopulateInternal(rdr);
-            }
+                new SqlParameter("@Id", SqlDbType.Int, id),
+            };
+
+            var objectData = this.Db.PrepareAndExecuteQuery(commandText: sql, parameters: parameters)
+                .ToList()
+                .FirstOrDefault();
+            
+            this.PopulateInternal(objectData);
         }
 
         /// <summary>
@@ -120,6 +133,36 @@
             {
                 throw new InvalidOperationException("Can't update an non-existing record.");
             }
+        }
+
+        private SqlDataReader GetColumnInfo(string tableName)
+        {
+            string sql = $"SELECT COLUMN_NAME, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS " +
+                $"WHERE TABLE_NAME = '{tableName}'";
+            return this.Db.PrepareAndExecuteQuery(commandText: sql);
+        }
+
+        private string GetConditionForUpdate(PropertyInfo[] props)
+        {
+            string output = " WHERE ";
+            var ids = from p in props
+                      where p.GetCustomAttributes<IdPropertyAttribute>().Count() == 1
+                      select new { name = p.Name, value = p.GetValue(this) };
+
+            if (ids.Count() < 1)
+            {
+                throw new InvalidOperationException("Cannot update property without a primary key");
+            }
+            else if (ids.Count() > 1)
+            {
+                output += string.Join(" AND ", ids.Select(a => $"{a.name} = {a.value}"));
+            }
+            else
+            {
+                output += $" {ids.First().name} = {ids.First().value} ";
+            }
+
+            return output;
         }
 
         private string GetDefaultColumns(PropertyInfo[] props)
@@ -149,76 +192,90 @@
             return output;
         }
 
-        private string GetConditionForUpdate(PropertyInfo[] props)
-        {
-            string output = " WHERE ";
-            var ids = from p in props
-                      where p.GetCustomAttributes<IdPropertyAttribute>().Count() == 1
-                      select new { name = p.Name, value = p.GetValue(this) };
-
-            if (ids.Count() < 1)
-            {
-                throw new InvalidOperationException("Cannot update property without a primary key");
-            }
-            else if (ids.Count() > 1)
-            {
-                output += string.Join(" AND ", ids.Select(a => $"{a.name} = {a.value}"));
-            }
-            else
-            {
-                output += $" {ids.First().name} = {ids.First().value} ";
-            }
-
-            return output;
-        }
-
-        private void PopulateInternal(SqlDataReader rdr)
+        private void PopulateInternal(Dictionary<string, DatabaseObject> objectData)
         {
             this.Populating = true;
-            try
+            foreach (var unit in objectData)
             {
-                for (int x = 0; x < rdr.FieldCount; x++)
+                Type t = this.GetType();
+                var prop = t.GetProperty(unit.Key);
+
+                if (!this.ValidateType(prop, unit))
                 {
-                    string name = rdr.GetName(x);
-                    var prop = this.GetType().GetProperty(name);
-                    if (prop == null)
+                    throw new ArgumentException($"Unsafe Conversion not permitted. Type validation for {prop.Name} failed.");
+                }
+
+                if (prop == null && unit.Value.ValueObject == null)
+                {
+                    // allows joins and larger queries.
+                    if (unit.Value.ValueObject == null)
                     {
-                        // field is not in properties, but also null in reader (enables joinqueries).
-                        if (Convert.IsDBNull(rdr.GetValue(x)))
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException(
-                                $"No property found with name {name}");
-                        }
+                        continue;
                     }
                     else
                     {
-                        if (!Convert.IsDBNull(rdr.GetValue(x)))
-                        {
-                            Type t = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                            prop.SetValue(this, Convert.ChangeType(rdr.GetValue(x), t));
-                        }
-                        else
-                        {
-                            prop.SetValue(this, null);
-                        }
+                        throw new InvalidOperationException($"Object does not contains a property {unit.Key}, but resultset contains a non-null value.");
+                    }
+                }
+                else
+                {
+                    if (unit.Value.ValueObject != null)
+                    {
+                        var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                        prop.SetValue(this, Convert.ChangeType(unit.Value.ValueObject, type));
+                    }
+                    else if (Nullable.GetUnderlyingType(prop.PropertyType) != null)
+                    {
+                        prop.SetValue(this, null);
+                    }
+                    else
+                    {
+                        // allows databasecolumns to be nullable, while the property is not nullable.
                     }
                 }
             }
-            finally
-            {
-                this.Populating = false;
-            }
+
+            this.Populating = false;
         }
 
-        private SqlDataReader GetColumnInfo(string tableName)
+        private bool ValidateType(PropertyInfo prop, KeyValuePair<string, DatabaseObject> unit)
         {
-            string sql = $"SELECT COLUMN_NAME, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS " +
-                $"WHERE TABLE_NAME = '{tableName}'";
-            return this.Db.PrepareAndExecuteQuery(commandText: sql);
+            // if selected property is a char, check if type returned by the databasereader is a string.
+            if (prop.PropertyType.IsEquivalentTo(typeof(char)) || prop.PropertyType.IsEquivalentTo(typeof(char?)))
+            {
+                if (unit.Value.ValueType.IsEquivalentTo(typeof(string)))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            // selected property is a double, check if type returned by databasereader type is a float.
+            if (prop.PropertyType.IsEquivalentTo(typeof(double)) || prop.PropertyType.IsEquivalentTo(typeof(double?)))
+            {
+                if (unit.Value.ValueType.IsEquivalentTo(typeof(float)))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            // database reader does not return nullables, get underlying type in case of nullable property.
+            var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+            if (propType.IsEquivalentTo(unit.Value.ValueType))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

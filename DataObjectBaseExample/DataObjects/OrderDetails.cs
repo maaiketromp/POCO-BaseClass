@@ -1,27 +1,34 @@
-﻿using DataObjectBaseExample.Attributes;
-using DataObjectBaseExample.Data;
-using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿// <summary>
+// Example of a POCO Base object.
+// </summary>
+// <copyright file="OrderDetails.cs" company="">
+// Copyright (C) 2020 Maaike Tromp
 
 namespace DataObjectBaseExample.DataObjects
 {
-    class OrderDetails : DataObjectBase
+    using System.Collections.Generic;
+    using DataObjectBaseExample.Attributes;
+    using DataObjectBaseExample.Data;
+    using DataObjectBaseExample.Interfaces;
+
+    /// <summary>
+    /// Represents an record with order details and product ids.
+    /// </summary>
+    public class OrderDetails : DataObjectBase
     {
         private int orderId;
         private int productId;
         private int quantity;
 
-        public OrderDetails(DatabaseConnector db, bool activeLoading = false)
+        public OrderDetails(IDatabaseConnector db, bool activeLoading = false)
             : base(db, activeLoading)
         {
         }
 
-        public OrderDetails(DatabaseConnector db, SqlDataReader rdr, bool activeLoading = false)
+        public OrderDetails(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
             : base(db, activeLoading)
         {
-            this.Populate(rdr);
+            this.Populate(objectData);
         }
 
         [IdProperty]

@@ -1,11 +1,14 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿// <summary>
+// Example of a POCO Base object.
+// </summary>
+// <copyright file="IDatabaseConnector.cs" company="">
+// Copyright (C) 2020 Maaike Tromp
 
 namespace DataObjectBaseExample.Interfaces
 {
+    using System.Data;
+    using Microsoft.Data.SqlClient;
+    
     /// <summary>
     /// Interface for the DatabaseConnector.
     /// </summary>
