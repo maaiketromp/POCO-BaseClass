@@ -4,12 +4,12 @@
 // <copyright file="DatabaseConnector.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.Data
+namespace DataObjectBaseLibrary.Data
 {
     using System;
     using System.Data;
     using Microsoft.Data.SqlClient;
-    using DataObjectBaseExample.Interfaces;
+    using DataObjectBaseLibrary.Interfaces;
 
     /// <inheritdoc/>
     public class DatabaseConnector : IDatabaseConnector, IDisposable

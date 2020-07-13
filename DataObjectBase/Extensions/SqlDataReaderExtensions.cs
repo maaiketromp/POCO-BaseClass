@@ -4,13 +4,13 @@
 // <copyright file="SqlDataReaderExtensions.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.Extensions
+namespace DataObjectBaseLibrary.Extensions
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.Data.SqlClient;
-    using DataObjectBaseExample.Data;
+    using DataObjectBaseLibrary.Data;
 
     /// <summary>
     /// Extensions for the SqlDataReader.

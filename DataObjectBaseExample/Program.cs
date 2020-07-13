@@ -7,8 +7,8 @@
 namespace DataObjectBaseExample
 {
     using System.Collections.Generic;
-    using DataObjectBaseExample.Data;
-    using DataObjectBaseExample.DataObjects;
+    using DataObjectBaseLibrary.Data;
+    using DataObjectBaseLibrary.DataObjects;
     using DataObjectBaseExample.Models;
     
     class Program

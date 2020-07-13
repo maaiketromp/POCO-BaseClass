@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.txt = README.txt
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataObjectBase", "DataObjectBase\DataObjectBase.csproj", "{1F7A64AA-51CB-43C6-9D20-9CDAA2CB6CD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataObjectBaseLibrary", "DataObjectBase\DataObjectBaseLibrary.csproj", "{1F7A64AA-51CB-43C6-9D20-9CDAA2CB6CD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

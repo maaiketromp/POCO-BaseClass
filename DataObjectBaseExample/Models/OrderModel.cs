@@ -9,10 +9,10 @@ namespace DataObjectBaseExample.Models
     using System.Collections.Generic;
     using System.Data;
     using Microsoft.Data.SqlClient;
-    using DataObjectBaseExample.DataObjects;
-    using DataObjectBaseExample.Extensions;
-    using DataObjectBaseExample.Interfaces;
-    
+    using DataObjectBaseLibrary.DataObjects;
+    using DataObjectBaseLibrary.Extensions;
+    using DataObjectBaseLibrary.Interfaces;
+
     /// <summary>
     /// Retrieves data from database relating to orders.
     /// </summary>

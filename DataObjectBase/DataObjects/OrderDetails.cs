@@ -4,12 +4,12 @@
 // <copyright file="OrderDetails.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.DataObjects
+namespace DataObjectBaseLibrary.DataObjects
 {
     using System.Collections.Generic;
-    using DataObjectBaseExample.Attributes;
-    using DataObjectBaseExample.Data;
-    using DataObjectBaseExample.Interfaces;
+    using DataObjectBaseLibrary.Attributes;
+    using DataObjectBaseLibrary.Data;
+    using DataObjectBaseLibrary.Interfaces;
 
     /// <summary>
     /// Represents an record with order details and product ids.

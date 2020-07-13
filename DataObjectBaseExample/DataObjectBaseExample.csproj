@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataObjectBase\DataObjectBase.csproj" />
+    <ProjectReference Include="..\DataObjectBase\DataObjectBaseLibrary.csproj" />
   </ItemGroup>
 
 </Project>

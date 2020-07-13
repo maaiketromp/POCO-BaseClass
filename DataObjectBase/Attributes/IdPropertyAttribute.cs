@@ -4,7 +4,7 @@
 // <copyright file="IdPropertyAttribute.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.Attributes
+namespace DataObjectBaseLibrary.Attributes
 {
     using System;
 

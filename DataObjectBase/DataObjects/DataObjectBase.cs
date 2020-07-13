@@ -4,7 +4,7 @@
 // <copyright file="DataObjectBase.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.DataObjects
+namespace DataObjectBaseLibrary.DataObjects
 {
     using System;
     using System.Collections.Generic;
@@ -13,10 +13,10 @@ namespace DataObjectBaseExample.DataObjects
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using Microsoft.Data.SqlClient;
-    using DataObjectBaseExample.Attributes;
-    using DataObjectBaseExample.Data;
-    using DataObjectBaseExample.Interfaces;
-    using DataObjectBaseExample.Extensions;
+    using DataObjectBaseLibrary.Attributes;
+    using DataObjectBaseLibrary.Data;
+    using DataObjectBaseLibrary.Interfaces;
+    using DataObjectBaseLibrary.Extensions;
 
     /// <summary>
     /// A base class for a POCO that interacts with the database.

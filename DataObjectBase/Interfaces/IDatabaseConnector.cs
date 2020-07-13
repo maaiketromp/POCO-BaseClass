@@ -4,7 +4,7 @@
 // <copyright file="IDatabaseConnector.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.Interfaces
+namespace DataObjectBaseLibrary.Interfaces
 {
     using System.Data;
     using Microsoft.Data.SqlClient;

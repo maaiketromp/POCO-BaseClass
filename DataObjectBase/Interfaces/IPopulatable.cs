@@ -4,7 +4,7 @@
 // <copyright file="IPopulatable.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.Interfaces
+namespace DataObjectBaseLibrary.Interfaces
 {
     /// <summary>
     /// Interface for Populatable objects.

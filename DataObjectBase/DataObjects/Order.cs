@@ -4,13 +4,13 @@
 // <copyright file="Order.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.DataObjects
+namespace DataObjectBaseLibrary.DataObjects
 {
     using System;
     using System.Collections.Generic;
-    using DataObjectBaseExample.Attributes;
-    using DataObjectBaseExample.Data;
-    using DataObjectBaseExample.Interfaces;
+    using DataObjectBaseLibrary.Attributes;
+    using DataObjectBaseLibrary.Data;
+    using DataObjectBaseLibrary.Interfaces;
   
     /// <summary>
     /// Represents and holds the data off an order.

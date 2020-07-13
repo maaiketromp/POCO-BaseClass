@@ -4,7 +4,7 @@
 // <copyright file="DatabaseObject.cs" company="">
 // Copyright (C) 2020 Maaike Tromp
 
-namespace DataObjectBaseExample.Data
+namespace DataObjectBaseLibrary.Data
 {
     using System;
 
