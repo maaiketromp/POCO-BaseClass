@@ -14,7 +14,7 @@ namespace DataObjectBaseExample.Interfaces
         /// <summary>
         /// Gets or sets a value indicating whether properties shall be updated immeadiately to the database.
         /// </summary>
-        public bool ActiveLoading { get; set; }
+        public bool ActiveUpdate { get; set; }
 
         /// <summary>
         /// Updates the populated object in the database.

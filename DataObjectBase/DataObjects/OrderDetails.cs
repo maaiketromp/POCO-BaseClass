@@ -28,7 +28,6 @@ namespace DataObjectBaseExample.DataObjects
         public OrderDetails(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
             : base(db, activeLoading)
         {
-            this.Populate(objectData);
         }
 
         [IdProperty]
@@ -73,7 +72,7 @@ namespace DataObjectBaseExample.DataObjects
                         return;
                     }
 
-                    if (this.ActiveLoading)
+                    if (this.ActiveUpdate)
                     {
                         this.UpdateProperty(value);
                     }

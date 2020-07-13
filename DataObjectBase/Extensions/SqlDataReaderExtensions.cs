@@ -23,7 +23,7 @@ namespace DataObjectBaseExample.Extensions
         /// <param name="rdr">A SqlDataReader.</param>
         /// <returns>A list of Dictionary objects.</returns>
         public static List<Dictionary<string, DatabaseObject>> ToList(this SqlDataReader rdr)
-        {            
+        {
             var outputList = new List<Dictionary<string, DatabaseObject>>();
             
             if (!rdr.HasRows)
@@ -31,8 +31,7 @@ namespace DataObjectBaseExample.Extensions
                 return outputList;
             }
 
-            var colTypes = (from col in rdr.GetColumnSchema()
-                            select new { Name = col.ColumnName, Type = col.DataType }).ToDictionary(c => c.Name, c => c.Type);
+            var colTypes = GetColumnDictionary(rdr);
 
             while (rdr.Read())
             {
@@ -43,20 +42,54 @@ namespace DataObjectBaseExample.Extensions
                     string colName = rdr.GetName(i);
                     if ((rdr[i] is DBNull))
                     {
-                        // replace DBNull object with a null value.
-                        row.Add(colName, new DatabaseObject(colTypes[colName], null));
+                        if (row.ContainsKey(colName))
+                        {
+                            // do nothing.
+                        }
+                        else
+                        {
+                            // replace DBNull object with a null value.
+                            row.Add(colName, new DatabaseObject(colTypes[colName], null));
+
+                        }
                     }
                     else
                     {
-                        row.Add(colName, new DatabaseObject(colTypes[colName], rdr[i]));
+                        if (row.ContainsKey(colName))
+                        {
+                            // override previous entry.
+                            row[colName] = new DatabaseObject(colTypes[colName], rdr[i]);
+                        }
+                        else
+                        {
+                            row.Add(colName, new DatabaseObject(colTypes[colName], rdr[i]));
+                        }
                     }
                 }
 
                 outputList.Add(row);
             }
 
+            rdr.Close();
             return outputList;
             
+        }
+
+        private static Dictionary<string, Type> GetColumnDictionary(SqlDataReader rdr)
+        {
+            var columns = from col in rdr.GetColumnSchema()
+                          select new { Name = col.ColumnName, Type = col.DataType };
+
+            var outputDict = new Dictionary<string, Type>();
+            foreach (var col in columns)
+            {
+                if (!outputDict.ContainsKey(col.Name))
+                {
+                    outputDict.Add(col.Name, col.Type);
+                }
+            }
+
+            return outputDict;
         }
     }
 }

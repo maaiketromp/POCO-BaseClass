@@ -27,15 +27,39 @@ namespace DataObjectBaseExample.DataObjects
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
         /// <param name="db">The databaseconnection.</param>
-        /// <param name="activeLoading">A value indicating this object's loading state.</param>
-        public DataObjectBase(IDatabaseConnector db, bool activeLoading)
+        /// <param name="activeUpdate">A value indicating this object's loading state.</param>
+        public DataObjectBase(IDatabaseConnector db, bool activeUpdate = false)
         {
             this.Db = db;
-            this.ActiveLoading = activeLoading;
+            this.ActiveUpdate = activeUpdate;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
+        /// </summary>
+        /// <param name="db">The databaseconnection.</param>
+        /// <param name="activeUpdate">A value indicating this object's loading state.</param>
+        public DataObjectBase(IDatabaseConnector db, int id, bool activeUpdate = false)
+        {
+            this.Db = db;
+            this.ActiveUpdate = activeUpdate;
+            this.PopulateById(id);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
+        /// </summary>
+        /// <param name="db">The databaseconnection.</param>
+        /// <param name="activeUpdate">A value indicating this object's loading state.</param>
+        public DataObjectBase(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
+        {
+            this.Db = db;
+            this.ActiveUpdate = activeUpdate;
+            this.Populate(objectData);
         }
 
         /// <inheritdoc/>
-        public bool ActiveLoading { get; set; }
+        public bool ActiveUpdate { get; set; }
 
         /// <summary>
         /// Gets Database crudclass instance.
@@ -61,17 +85,17 @@ namespace DataObjectBaseExample.DataObjects
                 {
                     string colName = Convert.ToString(rdr["COLUMN_NAME"]);
                     string defaultVal = Convert.ToString(rdr["COLUMN_DEFAULT"]);
-                    if (defaultVal != null)
-                    {
-                        sql += $" {colName} = DEFAULT , ";
-                    }
-                    else
+                    if (string.IsNullOrEmpty(defaultVal))
                     {
                         if (colName != "Id")
                         {
                             var prop = t.GetProperty(colName);
                             sql += $" {colName} = '{prop.GetValue(this)}', ";
                         }
+                    }
+                    else
+                    {
+                        sql += $" {colName} = DEFAULT , ";
                     }
                 }
             }
@@ -83,30 +107,79 @@ namespace DataObjectBaseExample.DataObjects
         /// <summary>
         /// Populates this object with a provided SqlDataReader.
         /// </summary>
-        /// <param name="rdr">A Datareader containing data for this object.</param>
-        protected void Populate(Dictionary<string, DatabaseObject> propertyData)
+        /// <param name="objectData">A Datareader containing data for this object.</param>
+        private void Populate(Dictionary<string, DatabaseObject> objectData)
         {
-            this.PopulateInternal(propertyData);
+            this.Populating = true;
+            Type t = this.GetType();
+            foreach (var unit in objectData)
+            {
+                var prop = t.GetProperty(unit.Key);
+
+                if (prop == null)
+                {
+                    // allows joins and larger queries.
+                    if (unit.Value.ValueObject == null)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Object does not contains a property {unit.Key}, but resultset contains a non-null value.");
+                    }
+                }
+                else if (!this.ValidateType(prop, unit))
+                {
+                    throw new ArgumentException($"Unsafe Conversion not permitted. Type validation for {prop.Name} failed.");
+                }
+                else
+                {
+                    if (unit.Value.ValueObject != null)
+                    {
+                        var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                        prop.SetValue(this, Convert.ChangeType(unit.Value.ValueObject, type));
+                    }
+                    else if (Nullable.GetUnderlyingType(prop.PropertyType) != null)
+                    {
+                        prop.SetValue(this, null);
+                    }
+                    else
+                    {
+                        // allows databasecolumns to be nullable, while the property is not nullable.
+                    }
+                }
+            }
+
+            this.Populating = false;
         }
 
         /// <summary>
         /// Set an id and populate the object.
         /// </summary>
         /// <param name="id">Integer Id of object.</param>
-        protected void PopulateById(int id)
+        private void PopulateById(int id)
         {
             Type t = this.GetType();
+
+            var idCheck = (from p in t.GetProperties()
+                          where Attribute.IsDefined(p, typeof(IdPropertyAttribute))
+                          select p).Count();
+            if (idCheck > 1)
+            {
+                throw new InvalidOperationException("Populating by Id not supported for compound Primary Key.");
+            }
+
             string sql = $"SELECT * FROM {t.Name} WHERE Id = @Id";
             SqlParameter[] parameters = new SqlParameter[]
             {
-                new SqlParameter("@Id", SqlDbType.Int, id),
+                new SqlParameter("@Id", id),
             };
 
             var objectData = this.Db.PrepareAndExecuteQuery(commandText: sql, parameters: parameters)
                 .ToList()
                 .FirstOrDefault();
             
-            this.PopulateInternal(objectData);
+            this.Populate(objectData);
         }
 
         /// <summary>
@@ -114,25 +187,30 @@ namespace DataObjectBaseExample.DataObjects
         /// </summary>
         /// <param name="value">The value from the set method of the property.</param>
         /// <param name="propName">Name of the caller.</param>
-        /// <typeparam name="TV">Type of the value parameter.</typeparam>
-        protected void UpdateProperty<TV>(TV value, [CallerMemberName] string propName = null)
+        /// <typeparam name="T">Type of the value parameter.</typeparam>
+        protected void UpdateProperty<T>(T value, [CallerMemberName] string propName = null)
         {
-            var t = this.GetType();
+            if (this.Populating || !this.ActiveUpdate)
+            {
+                return;
+            }
+
             if (propName == null)
             {
                 throw new InvalidOperationException("Cannot update without a propertyName!");
             }
 
-            var props = t.GetProperties();
-            SqlParameter[] parameters = this.GetParameter(value);
-            string condition = this.GetConditionForUpdate(props);
-            string defValues = this.GetDefaultColumns(props);
-            string sql = $"UPDATE {t.Name} SET {propName} = @Value " +
-                defValues + condition;
-            if (this.Db.PrepareAndExecuteNonQuery(commandText: sql, parameters: parameters) != 1)
+            Type t = this.GetType();
+            var prop = t.GetProperty(propName);
+
+            // Do not update properties with Id or Default Attribute.
+            if (Attribute.IsDefined(prop, typeof(DefaultColumnAttribute)) ||
+                Attribute.IsDefined(prop, typeof(IdPropertyAttribute)))
             {
-                throw new InvalidOperationException("Can't update an non-existing record.");
+                throw new InvalidOperationException("Updating Id or Default column not allowed.");
             }
+
+            this.UpdatePropertyInternal(value, propName, t);
         }
 
         private SqlDataReader GetColumnInfo(string tableName)
@@ -146,7 +224,7 @@ namespace DataObjectBaseExample.DataObjects
         {
             string output = " WHERE ";
             var ids = from p in props
-                      where p.GetCustomAttributes<IdPropertyAttribute>().Count() == 1
+                      where Attribute.IsDefined(p, typeof(IdPropertyAttribute))
                       select new { name = p.Name, value = p.GetValue(this) };
 
             if (ids.Count() < 1)
@@ -171,8 +249,9 @@ namespace DataObjectBaseExample.DataObjects
 
             // Check for a columns with default attribute (for timestamps).
             var defaultVals = from p in props
-                              where p.GetCustomAttributes<DefaultColumnAttribute>().Count() == 1
+                              where Attribute.IsDefined(p, typeof(DefaultColumnAttribute))
                               select p.Name;
+
 
             if (defaultVals.Count() > 0)
             {
@@ -182,60 +261,23 @@ namespace DataObjectBaseExample.DataObjects
             return output;
         }
 
-        private SqlParameter[] GetParameter<TV>(TV value)
+        private void UpdatePropertyInternal<T>(T value, string propName, Type t)
         {
-            SqlParameter[] output = new SqlParameter[]
+            var props = t.GetProperties();
+            string condition = this.GetConditionForUpdate(props);
+            string defValues = this.GetDefaultColumns(props);
+            SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@Value", value),
             };
 
-            return output;
-        }
+            string sql = $"UPDATE {t.Name} SET {propName} = @Value " +
+                defValues + condition;
 
-        private void PopulateInternal(Dictionary<string, DatabaseObject> objectData)
-        {
-            this.Populating = true;
-            foreach (var unit in objectData)
+            if (this.Db.PrepareAndExecuteNonQuery(commandText: sql, parameters: parameters) != 1)
             {
-                Type t = this.GetType();
-                var prop = t.GetProperty(unit.Key);
-
-                if (!this.ValidateType(prop, unit))
-                {
-                    throw new ArgumentException($"Unsafe Conversion not permitted. Type validation for {prop.Name} failed.");
-                }
-
-                if (prop == null && unit.Value.ValueObject == null)
-                {
-                    // allows joins and larger queries.
-                    if (unit.Value.ValueObject == null)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Object does not contains a property {unit.Key}, but resultset contains a non-null value.");
-                    }
-                }
-                else
-                {
-                    if (unit.Value.ValueObject != null)
-                    {
-                        var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                        prop.SetValue(this, Convert.ChangeType(unit.Value.ValueObject, type));
-                    }
-                    else if (Nullable.GetUnderlyingType(prop.PropertyType) != null)
-                    {
-                        prop.SetValue(this, null);
-                    }
-                    else
-                    {
-                        // allows databasecolumns to be nullable, while the property is not nullable.
-                    }
-                }
+                throw new InvalidOperationException("Can't update an non-existing record.");
             }
-
-            this.Populating = false;
         }
 
         private bool ValidateType(PropertyInfo prop, KeyValuePair<string, DatabaseObject> unit)

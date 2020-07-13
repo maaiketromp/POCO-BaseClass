@@ -21,6 +21,7 @@ namespace DataObjectBaseExample.DataObjects
         private int customerId;
         private int employeeId;
         private DateTime shippingDate;
+        private bool isSet;
 
         public Order(IDatabaseConnector db, bool activeLoading = false)
             : base(db, activeLoading)
@@ -28,9 +29,13 @@ namespace DataObjectBaseExample.DataObjects
         }
 
         public Order(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
-            : base(db, activeLoading)
+            : base(db, objectData, activeLoading)
         {
-            this.Populate(objectData);
+        }
+
+        public Order(IDatabaseConnector db, int id, bool activeLoading = false)
+            : base(db, id, activeLoading)
+        {
         }
 
         [IdProperty]
@@ -39,13 +44,14 @@ namespace DataObjectBaseExample.DataObjects
             get => this.id;
             set
             {
-                if (value != this.Id)
+                if (this.isSet == false)
                 {
                     this.id = value;
-                    if (!this.Populating)
-                    {
-                        this.PopulateById(this.id);
-                    }
+                    this.isSet = true;
+                }
+                else
+                {
+                    throw new Exception("Id settable only once.");
                 }
             }
         }
@@ -58,16 +64,7 @@ namespace DataObjectBaseExample.DataObjects
                 if (this.customerId != value)
                 {
                     this.customerId = value;
-
-                    if (this.Populating)
-                    {
-                        return;
-                    }
-
-                    if (this.ActiveLoading)
-                    {
-                        this.UpdateProperty(value);
-                    }
+                    this.UpdateProperty(value);
                 }
             }
         }
@@ -85,7 +82,7 @@ namespace DataObjectBaseExample.DataObjects
                         return;
                     }
 
-                    if (this.ActiveLoading)
+                    if (this.ActiveUpdate)
                     {
                         this.UpdateProperty(value);
                     }
@@ -106,7 +103,7 @@ namespace DataObjectBaseExample.DataObjects
                         return;
                     }
 
-                    if (this.ActiveLoading)
+                    if (this.ActiveUpdate)
                     {
                         this.UpdateProperty(value);
                     }

@@ -20,6 +20,7 @@ namespace DataObjectBaseExample.DataObjects
         private int id;
         private string name;
         private DateTime lastUpdated;
+        private bool isSet;
 
         public Customer(IDatabaseConnector db, bool activeLoading = false)
             : base(db, activeLoading)
@@ -27,9 +28,13 @@ namespace DataObjectBaseExample.DataObjects
         }
 
         public Customer(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
-            : base(db, activeLoading)
+            : base(db, objectData, activeLoading)
         {
-            this.Populate(objectData);
+        }
+
+        public Customer(IDatabaseConnector db, int id, bool activeLoading = false)
+            : base(db, id, activeLoading)
+        {
         }
 
         [IdProperty]
@@ -38,13 +43,14 @@ namespace DataObjectBaseExample.DataObjects
             get => this.id;
             set
             {
-                if (value != this.Id)
+                if (this.isSet == false)
                 {
                     this.id = value;
-                    if (!this.Populating)
-                    {
-                        this.PopulateById(this.id);
-                    }
+                    this.isSet = true;
+                }
+                else
+                {
+                    throw new Exception("Id settable only once.");
                 }
             }
         }
@@ -57,16 +63,7 @@ namespace DataObjectBaseExample.DataObjects
                 if (this.name != value)
                 {
                     this.name = value;
-
-                    if (this.Populating)
-                    {
-                        return;
-                    }
-
-                    if (this.ActiveLoading)
-                    {
-                        this.UpdateProperty((string)value);
-                    }
+                    this.UpdateProperty((string)value);
                 }
             }
         }
@@ -77,7 +74,7 @@ namespace DataObjectBaseExample.DataObjects
             get => this.lastUpdated;
             set
             {
-                if (this.Populating)
+                if (this.lastUpdated != value)
                 {
                     this.lastUpdated = value;
                 }

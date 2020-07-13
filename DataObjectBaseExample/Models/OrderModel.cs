@@ -38,7 +38,7 @@ namespace DataObjectBaseExample.Models
         public List<Order> GetAllCustomerOrders(int customerId)
         {
             List<Order> outputList = new List<Order>();
-            string sql = "SELECT * FROM ORDER WHERE Id=@Id";
+            string sql = "SELECT * FROM ORDER WHERE CustomerId=@Id";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@Id", SqlDbType.Int, customerId),
