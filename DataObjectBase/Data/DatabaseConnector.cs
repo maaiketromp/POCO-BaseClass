@@ -19,7 +19,7 @@ namespace DataObjectBaseExample.Data
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatabaseConnector"/> class using the connection string.
-        /// (For development and testing purposes only!)
+        /// (For development and testing purposes only)
         /// </summary>
         /// <param name="connString">Database connectionString.</param>
         public DatabaseConnector(string connString)

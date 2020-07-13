@@ -23,21 +23,41 @@ namespace DataObjectBaseExample.DataObjects
         private DateTime shippingDate;
         private bool isSet;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Order"/> class 
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public Order(IDatabaseConnector db, bool activeLoading = false)
             : base(db, activeLoading)
         {
         }
 
-        public Order(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
-            : base(db, objectData, activeLoading)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Order"/> class 
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="objectData">Data to populate the object.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
+        public Order(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
+            : base(db, objectData, activeUpdate)
         {
         }
 
-        public Order(IDatabaseConnector db, int id, bool activeLoading = false)
-            : base(db, id, activeLoading)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Customer"/> class 
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="id">Id of the record to be loaded from the database.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
+        public Order(IDatabaseConnector db, int id, bool activeUpdate = false)
+            : base(db, id, activeUpdate)
         {
         }
 
+        /// <summary>
+        /// Gets or sets the Id of the object.
+        /// </summary>
         [IdProperty]
         public int Id
         {
@@ -56,6 +76,9 @@ namespace DataObjectBaseExample.DataObjects
             }
         }
 
+        /// <summary>
+        /// Gets or sets the customer id.
+        /// </summary>
         public int CustomerId
         {
             get => this.customerId;
@@ -69,44 +92,34 @@ namespace DataObjectBaseExample.DataObjects
             }
         }
 
+        /// <summary>
+        /// Gets or sets the employee's id.
+        /// </summary>
         public int EmployeeId
         {
+            get => this.employeeId;
             set
             {
                 if (this.employeeId != value)
                 {
-                    this.employeeId= value;
-
-                    if (this.Populating)
-                    {
-                        return;
-                    }
-
-                    if (this.ActiveUpdate)
-                    {
-                        this.UpdateProperty(value);
-                    }
+                    this.employeeId = value;
+                    this.UpdateProperty(value);
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the shipping data of the order.
+        /// </summary>
         public DateTime ShippingDate
         {
+            get => this.shippingDate;
             set
             {
                 if (this.shippingDate != value)
                 {
                     this.shippingDate = value;
-
-                    if (this.Populating)
-                    {
-                        return;
-                    }
-
-                    if (this.ActiveUpdate)
-                    {
-                        this.UpdateProperty(value);
-                    }
+                    this.UpdateProperty(value);
                 }
             }
         }

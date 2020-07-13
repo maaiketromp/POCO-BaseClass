@@ -20,16 +20,30 @@ namespace DataObjectBaseExample.DataObjects
         private int productId;
         private int quantity;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OrderDetails"/> class 
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public OrderDetails(IDatabaseConnector db, bool activeLoading = false)
             : base(db, activeLoading)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Customer"/> class 
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="objectData">Data to populate the object.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public OrderDetails(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
             : base(db, activeLoading)
         {
         }
 
+        /// <summary>
+        /// Gets or sets the order id.
+        /// </summary>
         [IdProperty]
         public int OrderId
         {
@@ -38,12 +52,14 @@ namespace DataObjectBaseExample.DataObjects
             {
                 if (value != this.orderId)
                 {
-                    // No populating by id with compound primary keys.
                     this.orderId = value;
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the product id.
+        /// </summary>
         [IdProperty]
         public int ProductId
         {
@@ -52,12 +68,14 @@ namespace DataObjectBaseExample.DataObjects
             {
                 if (value != this.productId)
                 {
-                    // No populating by id with compound primary keys.
                     this.productId = value;
                 }
             }
         }
 
+        /// <summary>
+        /// Gets or sets the quantity of the products of this order.
+        /// </summary>
         public int Quantity
         {
             get => this.quantity;
@@ -66,19 +84,9 @@ namespace DataObjectBaseExample.DataObjects
                 if (this.quantity != value)
                 {
                     this.quantity = value;
-
-                    if (this.Populating)
-                    {
-                        return;
-                    }
-
-                    if (this.ActiveUpdate)
-                    {
-                        this.UpdateProperty(value);
-                    }
+                    this.UpdateProperty(value);
                 }
             }
         }
-
     }
 }

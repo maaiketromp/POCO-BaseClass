@@ -22,21 +22,41 @@ namespace DataObjectBaseExample.DataObjects
         private DateTime lastUpdated;
         private bool isSet;
 
-        public Customer(IDatabaseConnector db, bool activeLoading = false)
-            : base(db, activeLoading)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Customer"/> class 
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
+        public Customer(IDatabaseConnector db, bool activeUpdate = false)
+            : base(db, activeUpdate)
         {
         }
 
-        public Customer(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
-            : base(db, objectData, activeLoading)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Customer"/> class 
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="objectData">Data to populate the object.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
+        public Customer(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
+            : base(db, objectData, activeUpdate)
         {
         }
 
-        public Customer(IDatabaseConnector db, int id, bool activeLoading = false)
-            : base(db, id, activeLoading)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Customer"/> class 
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="id">Id of the record to be loaded from the database.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
+        public Customer(IDatabaseConnector db, int id, bool activeUpdate = false)
+            : base(db, id, activeUpdate)
         {
         }
 
+        /// <summary>
+        /// Gets or sets the Id of the object.
+        /// </summary>
         [IdProperty]
         public int Id
         {
@@ -55,6 +75,9 @@ namespace DataObjectBaseExample.DataObjects
             }
         }
 
+        /// <summary>
+        /// Gets or sets the name of the customer.
+        /// </summary>
         public string Name
         {
             get => this.name;
@@ -68,6 +91,9 @@ namespace DataObjectBaseExample.DataObjects
             }
         }
 
+        /// <summary>
+        /// Gets or sets the last time this record was updated.
+        /// </summary>
         [DefaultColumn]
         public DateTime LastUpdated 
         { 

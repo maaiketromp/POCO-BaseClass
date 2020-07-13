@@ -9,7 +9,7 @@ namespace DataObjectBaseExample.Attributes
     using System;
 
     /// <summary>
-    /// Identifies an Id Property (or properties) of a plain DataObject.
+    /// Identifies an Id Property of a POCO.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public class IdPropertyAttribute : Attribute

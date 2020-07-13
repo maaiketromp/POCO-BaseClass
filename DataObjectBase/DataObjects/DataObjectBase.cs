@@ -19,15 +19,17 @@ namespace DataObjectBaseExample.DataObjects
     using DataObjectBaseExample.Extensions;
 
     /// <summary>
-    /// A base object enabling POCO's to populate an object, to populate by id, to update an object and to update a single property.
+    /// A base class for a POCO that interacts with the database.
     /// </summary>
     public abstract class DataObjectBase : IPopulatable
     {
+        private bool populating;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
-        /// <param name="db">The databaseconnection.</param>
-        /// <param name="activeUpdate">A value indicating this object's loading state.</param>
+        /// <param name="db">The database connection.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public DataObjectBase(IDatabaseConnector db, bool activeUpdate = false)
         {
             this.Db = db;
@@ -38,7 +40,7 @@ namespace DataObjectBaseExample.DataObjects
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
         /// <param name="db">The databaseconnection.</param>
-        /// <param name="activeUpdate">A value indicating this object's loading state.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public DataObjectBase(IDatabaseConnector db, int id, bool activeUpdate = false)
         {
             this.Db = db;
@@ -50,7 +52,7 @@ namespace DataObjectBaseExample.DataObjects
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
         /// <param name="db">The databaseconnection.</param>
-        /// <param name="activeUpdate">A value indicating this object's loading state.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public DataObjectBase(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
         {
             this.Db = db;
@@ -62,14 +64,9 @@ namespace DataObjectBaseExample.DataObjects
         public bool ActiveUpdate { get; set; }
 
         /// <summary>
-        /// Gets Database crudclass instance.
+        /// Gets Database connection object.
         /// </summary>
         protected IDatabaseConnector Db { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether the object is now populating.
-        /// </summary>
-        protected bool Populating { get; private set; }
 
         /// <inheritdoc/>
         public int UpdateObject()
@@ -110,7 +107,7 @@ namespace DataObjectBaseExample.DataObjects
         /// <param name="objectData">A Datareader containing data for this object.</param>
         private void Populate(Dictionary<string, DatabaseObject> objectData)
         {
-            this.Populating = true;
+            this.populating = true;
             Type t = this.GetType();
             foreach (var unit in objectData)
             {
@@ -150,7 +147,7 @@ namespace DataObjectBaseExample.DataObjects
                 }
             }
 
-            this.Populating = false;
+            this.populating = false;
         }
 
         /// <summary>
@@ -190,7 +187,7 @@ namespace DataObjectBaseExample.DataObjects
         /// <typeparam name="T">Type of the value parameter.</typeparam>
         protected void UpdateProperty<T>(T value, [CallerMemberName] string propName = null)
         {
-            if (this.Populating || !this.ActiveUpdate)
+            if (this.populating || !this.ActiveUpdate)
             {
                 return;
             }

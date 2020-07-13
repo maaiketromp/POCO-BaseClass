@@ -83,6 +83,7 @@ namespace DataObjectBaseExample.Extensions
             var outputDict = new Dictionary<string, Type>();
             foreach (var col in columns)
             {
+                // check for duplicate column names.
                 if (!outputDict.ContainsKey(col.Name))
                 {
                     outputDict.Add(col.Name, col.Type);
