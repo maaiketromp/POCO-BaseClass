@@ -29,3 +29,5 @@ The base object is able to:
 Supplied is a class library and an example application.
 In the individual properties you can spot differences in the implementation of get and set functions.
 The base class will check any behaviour that is not allowed, for example when you try to update a default-only property.
+
+This assignment's first release was in July 2020.
