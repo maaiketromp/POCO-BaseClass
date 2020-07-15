@@ -6,7 +6,9 @@
 
 namespace DataObjectBaseLibrary.Interfaces
 {
+    using System.Collections.Generic;
     using System.Data;
+    using DataObjectBaseLibrary.Data;
     using Microsoft.Data.SqlClient;
     
     /// <summary>
@@ -34,6 +36,18 @@ namespace DataObjectBaseLibrary.Interfaces
         /// <param name="parameters">Array of SqlParameters.</param>
         /// <returns>Number of rows affected.</returns>
         public int PrepareAndExecuteNonQuery(
+            string commandText,
+            CommandType type = CommandType.Text,
+            SqlParameter[] parameters = null);
+
+        /// <summary>
+        /// Executes a query and parses the result into a list of dictionaries.
+        /// </summary>
+        /// <param name="commandText">Sql string.</param>
+        /// <param name="type">Command type.</param>
+        /// <param name="parameters">An array of SqlParameters to bind.</param>
+        /// <returns></returns>
+        public List<Dictionary<string, DatabaseObject>> ExecuteQueryGetResult(
             string commandText,
             CommandType type = CommandType.Text,
             SqlParameter[] parameters = null);

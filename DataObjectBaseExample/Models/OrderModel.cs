@@ -10,7 +10,6 @@ namespace DataObjectBaseExample.Models
     using System.Data;
     using Microsoft.Data.SqlClient;
     using DataObjectBaseLibrary.DataObjects;
-    using DataObjectBaseLibrary.Extensions;
     using DataObjectBaseLibrary.Interfaces;
 
     /// <summary>
@@ -44,10 +43,11 @@ namespace DataObjectBaseExample.Models
                 new SqlParameter("@Id", SqlDbType.Int, customerId),
             };
 
-            var modelData = this.db.PrepareAndExecuteQuery(commandText: sql, parameters: parameters)
-                .ToList();
+            var modelData = this.db.ExecuteQueryGetResult(
+                commandText: sql, parameters: parameters);
+                
 
-            foreach(var record in modelData)
+            foreach (var record in modelData)
             {
                 outputList.Add(new Order(this.db, record));
             }
