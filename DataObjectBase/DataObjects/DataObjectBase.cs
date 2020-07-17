@@ -16,7 +16,6 @@ namespace DataObjectBaseLibrary.DataObjects
     using DataObjectBaseLibrary.Attributes;
     using DataObjectBaseLibrary.Data;
     using DataObjectBaseLibrary.Interfaces;
-    using DataObjectBaseLibrary.Extensions;
 
     /// <summary>
     /// A base class for a POCO that interacts with the database.
@@ -172,8 +171,7 @@ namespace DataObjectBaseLibrary.DataObjects
                 new SqlParameter("@Id", id),
             };
 
-            var objectData = this.Db.PrepareAndExecuteQuery(commandText: sql, parameters: parameters)
-                .ToList()
+            var objectData = this.Db.ExecuteQueryGetResult(commandText: sql, parameters: parameters)
                 .FirstOrDefault();
             
             this.Populate(objectData);
