@@ -27,7 +27,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// </summary>
         /// <param name="db">Database connection.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public Customer(IDatabaseConnector db, bool activeUpdate = false)
+        public Customer(IDatabaseConnectorWrapper db, bool activeUpdate = false)
             : base(db, activeUpdate)
         {
         }
@@ -38,19 +38,30 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <param name="db">Database connection.</param>
         /// <param name="objectData">Data to populate the object.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public Customer(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
+        public Customer(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
             : base(db, objectData, activeUpdate)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Customer"/> class 
+        /// Initializes a new instance of the <see cref="Customer"/> class.
         /// </summary>
         /// <param name="db">Database connection.</param>
         /// <param name="id">Id of the record to be loaded from the database.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public Customer(IDatabaseConnector db, int id, bool activeUpdate = false)
+        public Customer(IDatabaseConnectorWrapper db, int id, bool activeUpdate = false)
             : base(db, id, activeUpdate)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Customer"/> class.
+        /// </summary>
+        /// <param name="db">Database wrapper instance.</param>
+        /// <param name="data">Data to populate object.</param>
+        /// <param name="activeUpdate">Value indicating whether the object should update any changes immeadiately to the database.</param>
+        public Customer(IDatabaseConnectorWrapper db, IResultTable data, bool activeUpdate)
+            : base(db, data, activeUpdate)
         {
         }
 

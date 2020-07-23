@@ -7,6 +7,7 @@
 namespace DataObjectBaseLibrary.Helpers
 {
     using DataObjectBaseLibrary.Data;
+    using System;
     using System.Collections;
     using System.Collections.Generic;
 
@@ -21,6 +22,14 @@ namespace DataObjectBaseLibrary.Helpers
             for (int i = 0; i < cells.Length; i++)
             {
                 this.cells[i] = cells[i];
+            }
+        }
+
+        public DatabaseObject this[int index]
+        {
+            get
+            {
+                return (DatabaseObject)this.cells[index];
             }
         }
 

@@ -27,9 +27,9 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
-        /// <param name="db">The database connection.</param>
+        /// <param name="db">Databaseconnection/ </param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public DataObjectBase(IDatabaseConnector db, bool activeUpdate = false)
+        public DataObjectBase(IDatabaseConnectorWrapper db, bool activeUpdate)
         {
             this.Db = db;
             this.ActiveUpdate = activeUpdate;
@@ -40,7 +40,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// </summary>
         /// <param name="db">The databaseconnection.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public DataObjectBase(IDatabaseConnector db, int id, bool activeUpdate = false)
+        public DataObjectBase(IDatabaseConnectorWrapper db, int id, bool activeUpdate)
         {
             this.Db = db;
             this.ActiveUpdate = activeUpdate;
@@ -52,12 +52,20 @@ namespace DataObjectBaseLibrary.DataObjects
         /// </summary>
         /// <param name="db">The databaseconnection.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public DataObjectBase(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
+        public DataObjectBase(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate)
         {
             this.Db = db;
             this.ActiveUpdate = activeUpdate;
             this.Populate(objectData);
         }
+
+        public DataObjectBase(IDatabaseConnectorWrapper db, IResultTable data, bool activeUpdate)
+        {
+            this.Db = db;
+            this.ActiveUpdate = activeUpdate;
+            this.PopulateWithIResultTable(data);
+        }
+
 
         /// <inheritdoc/>
         public bool ActiveUpdate { get; set; }
@@ -65,7 +73,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <summary>
         /// Gets Database connection object.
         /// </summary>
-        protected IDatabaseConnector Db { get; }
+        protected IDatabaseConnectorWrapper Db { get; }
 
         /// <inheritdoc/>
         public int UpdateObject()
@@ -100,6 +108,60 @@ namespace DataObjectBaseLibrary.DataObjects
             return this.Db.PrepareAndExecuteNonQuery(commandText: sql);
         }
 
+        public void PopulateWithIResultTable(IResultTable queryResult)
+        {
+            if (queryResult.Count() > 1)
+            {
+                throw new InvalidOperationException("Multiple records of inputdata.");
+            }
+
+            this.populating = true;
+            Type t = this.GetType();
+            var data = queryResult.First();
+            int colNum = queryResult[0].Count();
+
+            for (int i = 0; i < colNum; i++)
+            {
+                PropertyInfo prop = t.GetProperty(queryResult.GetColumnName(i));
+
+                if (prop == null)
+                {
+                    if (data[i].ValueObject == null)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(
+                            $"Object does not contains a property {queryResult.GetColumnName(i)}, but resultset contains a non-null value.");
+                    }
+                }
+                else if (!this.ValidateType(prop, data[i].ValueType))
+                {
+                    throw new ArgumentException($"Unsafe Conversion not permitted. Type validation for {prop.Name} failed.");
+                }
+                else
+                {
+                    if (data[i].ValueObject != null)
+                    {
+                        Type type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                        prop.SetValue(this, Convert.ChangeType(data[i].ValueObject, type));
+                    }
+                    else if (Nullable.GetUnderlyingType(prop.PropertyType) != null)
+                    {
+                        prop.SetValue(this, null);
+                    }
+                    else
+                    {
+                        // allows database entries to be null, while the property is not nullable.
+                    }
+                }
+            }
+
+            this.populating = false;
+        }
+
+
         /// <summary>
         /// Populates this object with a provided SqlDataReader.
         /// </summary>
@@ -110,7 +172,7 @@ namespace DataObjectBaseLibrary.DataObjects
             Type t = this.GetType();
             foreach (var unit in objectData)
             {
-                var prop = t.GetProperty(unit.Key);
+                PropertyInfo prop = t.GetProperty(unit.Key);
 
                 if (prop == null)
                 {
@@ -124,7 +186,7 @@ namespace DataObjectBaseLibrary.DataObjects
                         throw new InvalidOperationException($"Object does not contains a property {unit.Key}, but resultset contains a non-null value.");
                     }
                 }
-                else if (!this.ValidateType(prop, unit))
+                else if (!this.ValidateType(prop, unit.Value.ValueType))
                 {
                     throw new ArgumentException($"Unsafe Conversion not permitted. Type validation for {prop.Name} failed.");
                 }
@@ -132,7 +194,7 @@ namespace DataObjectBaseLibrary.DataObjects
                 {
                     if (unit.Value.ValueObject != null)
                     {
-                        var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                        Type type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
                         prop.SetValue(this, Convert.ChangeType(unit.Value.ValueObject, type));
                     }
                     else if (Nullable.GetUnderlyingType(prop.PropertyType) != null)
@@ -141,7 +203,7 @@ namespace DataObjectBaseLibrary.DataObjects
                     }
                     else
                     {
-                        // allows databasecolumns to be nullable, while the property is not nullable.
+                        // allows database entries to be null, while the property is not nullable.
                     }
                 }
             }
@@ -171,9 +233,9 @@ namespace DataObjectBaseLibrary.DataObjects
                 new SqlParameter("@Id", id),
             };
 
-            var objectData = this.Db.ExecuteQueryGetResult(commandText: sql, parameters: parameters)
-                .FirstOrDefault();
             
+            var objectData = this.Db.GetResultAsDictionary(commandText: sql, parameters: parameters).First();
+                        
             this.Populate(objectData);
         }
 
@@ -275,12 +337,16 @@ namespace DataObjectBaseLibrary.DataObjects
             }
         }
 
-        private bool ValidateType(PropertyInfo prop, KeyValuePair<string, DatabaseObject> unit)
+
+
+
+
+        private bool ValidateType(PropertyInfo prop, Type dataType)
         {
             // if selected property is a char, check if type returned by the databasereader is a string.
             if (prop.PropertyType.IsEquivalentTo(typeof(char)) || prop.PropertyType.IsEquivalentTo(typeof(char?)))
             {
-                if (unit.Value.ValueType.IsEquivalentTo(typeof(string)))
+                if (dataType.IsEquivalentTo(typeof(string)))
                 {
                     return true;
                 }
@@ -293,7 +359,7 @@ namespace DataObjectBaseLibrary.DataObjects
             // selected property is a double, check if type returned by databasereader type is a float.
             if (prop.PropertyType.IsEquivalentTo(typeof(double)) || prop.PropertyType.IsEquivalentTo(typeof(double?)))
             {
-                if (unit.Value.ValueType.IsEquivalentTo(typeof(float)))
+                if (dataType.IsEquivalentTo(typeof(float)))
                 {
                     return true;
                 }
@@ -305,7 +371,7 @@ namespace DataObjectBaseLibrary.DataObjects
 
             // database reader does not return nullables, get underlying type in case of nullable property.
             var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-            if (propType.IsEquivalentTo(unit.Value.ValueType))
+            if (propType.IsEquivalentTo(dataType))
             {
                 return true;
             }

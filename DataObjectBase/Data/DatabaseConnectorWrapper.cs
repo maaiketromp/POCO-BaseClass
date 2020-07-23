@@ -6,12 +6,13 @@
     using DataObjectBaseLibrary.Helpers;
     using DataObjectBaseLibrary.Interfaces;
     using System.Data;
+    using System.Collections.Generic;
 
-    public class QueryResultWrapper : IQueryResultWrapper
+    public class DatabaseConnectorWrapper : IDatabaseConnectorWrapper
     {
         private readonly IDatabaseConnector db;
 
-        public QueryResultWrapper(IDatabaseConnector db)
+        public DatabaseConnectorWrapper(IDatabaseConnector db)
         {
             this.db = db;
         }
@@ -50,6 +51,33 @@
             SqlParameter[] parameters = null)
         {
             return this.db.PrepareAndExecuteNonQuery(commandText, type, parameters);
+        }
+
+        public SqlDataReader PrepareAndExecuteQuery(
+            string commandText,
+            CommandType commandType = CommandType.Text,
+            SqlParameter[] parameters = null)
+        {
+            return this.db.PrepareAndExecuteQuery(commandText, commandType, parameters);
+        }
+
+        public List<Dictionary<string, DatabaseObject>> GetResultAsDictionary(string commandText, SqlParameter[] parameters = null)
+        {
+            var rowData = new Dictionary<string, DatabaseObject>();
+            var output = new List<Dictionary<string, DatabaseObject>>();
+
+            var result = this.GetResult(commandText, parameters);
+            
+            for (int i = 0; i < result.Count(); i++)
+            {
+                for (int j = 0; j < result[i].Count(); j++)
+                {
+                    rowData.Add(result.GetColumnName(j), result[i].ElementAt(j));
+                }
+                output.Add(rowData);
+            }
+
+            return output;
         }
     }
 }

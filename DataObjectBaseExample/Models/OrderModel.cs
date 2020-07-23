@@ -11,20 +11,21 @@ namespace DataObjectBaseExample.Models
     using Microsoft.Data.SqlClient;
     using DataObjectBaseLibrary.DataObjects;
     using DataObjectBaseLibrary.Interfaces;
+    using System.Linq;
 
     /// <summary>
     /// Retrieves data from database relating to orders.
     /// </summary>
     public class OrderModel
     {
-        private readonly IDatabaseConnector db;
+        private readonly IDatabaseConnectorWrapper db;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OrderModel"/> class.
         /// </summary>
         /// <param name="db">Database connection.</param>
         /// <param name="orderId">Id of order to retrieve.</param>
-        public OrderModel(IDatabaseConnector db)
+        public OrderModel(IDatabaseConnectorWrapper db)
         {
             this.db = db;
         }
@@ -43,14 +44,10 @@ namespace DataObjectBaseExample.Models
                 new SqlParameter("@Id", SqlDbType.Int, customerId),
             };
 
-            var modelData = this.db.ExecuteQueryGetResult(
-                commandText: sql, parameters: parameters);
-                
-
-            foreach (var record in modelData)
-            {
-                outputList.Add(new Order(this.db, record));
-            }
+            this.db.GetResultAsDictionary(
+                commandText: sql, 
+                parameters: parameters)
+                .ForEach(r => outputList.Add(new Order(this.db, r)));
 
             return outputList;
         }

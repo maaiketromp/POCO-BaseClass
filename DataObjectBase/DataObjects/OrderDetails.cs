@@ -25,7 +25,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// </summary>
         /// <param name="db">Database connection.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public OrderDetails(IDatabaseConnector db, bool activeLoading = false)
+        public OrderDetails(IDatabaseConnectorWrapper db, bool activeLoading = false)
             : base(db, activeLoading)
         {
         }
@@ -36,8 +36,19 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <param name="db">Database connection.</param>
         /// <param name="objectData">Data to populate the object.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public OrderDetails(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
+        public OrderDetails(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeLoading = false)
             : base(db, activeLoading)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Customer"/> class.
+        /// </summary>
+        /// <param name="db">Database wrapper instance.</param>
+        /// <param name="data">Data to populate object.</param>
+        /// <param name="activeUpdate">Value indicating whether the object should update any changes immeadiately to the database.</param>
+        public OrderDetails(IDatabaseConnectorWrapper db, IResultTable data, bool activeUpdate)
+            : base(db, data, activeUpdate)
         {
         }
 

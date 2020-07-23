@@ -20,8 +20,8 @@ namespace DataObjectBaseExample
             int customerId = 1;
             string connString = "Enter here your connection string.";
             DatabaseConnector db = new DatabaseConnector(connString);
-
-            OrderModel model = new OrderModel(db);
+            DatabaseConnectorWrapper wrapper = new DatabaseConnectorWrapper(db);
+            OrderModel model = new OrderModel(wrapper);
 
             List<Order> orders = model.GetAllCustomerOrders(customerId);
         }

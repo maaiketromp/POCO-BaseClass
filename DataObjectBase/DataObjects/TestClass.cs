@@ -8,21 +8,31 @@ namespace DataObjectBaseLibrary.DataObjects
 
     public class TestClass : DataObjectBase
     {
-        public TestClass(IDatabaseConnector db, bool activeUpdate = false)
+        public TestClass(IDatabaseConnectorWrapper db, bool activeUpdate = false)
             : base(db, activeUpdate)
         {
         }
 
-        public TestClass(IDatabaseConnector db, int id, bool activeUpdate = false)
+        public TestClass(IDatabaseConnectorWrapper db, int id, bool activeUpdate = false)
             : base(db, id, activeUpdate)
         {
         }
 
-        public TestClass(IDatabaseConnector db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate)
+        public TestClass(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate)
             : base(db, objectData, activeUpdate)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Customer"/> class.
+        /// </summary>
+        /// <param name="db">Database wrapper instance.</param>
+        /// <param name="data">Data to populate object.</param>
+        /// <param name="activeUpdate">Value indicating whether the object should update any changes immeadiately to the database.</param>
+        public TestClass(IDatabaseConnectorWrapper db, IResultTable data, bool activeUpdate)
+            : base(db, data, activeUpdate)
+        {
+        }
         public int Id { get; set; }
 
         public bool BoolVal { get; set; }

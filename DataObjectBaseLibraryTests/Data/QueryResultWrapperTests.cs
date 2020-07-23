@@ -15,7 +15,7 @@ namespace DataObjectBaseLibrary.Data.Tests
         public void GetResultTest()
         {
             DatabaseConnector db = new DatabaseConnector(connString);
-            QueryResultWrapper wrapper = new QueryResultWrapper(db);
+            DatabaseConnectorWrapper wrapper = new DatabaseConnectorWrapper(db);
             string sql = "SELECT * FROM TestObjectClass WHERE Id < 12";
             var result = wrapper.GetResult(sql);
         }
