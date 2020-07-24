@@ -9,13 +9,14 @@ namespace DataObjectBaseLibrary.Helpers
     using System.Collections.Generic;
     using System.Linq;
     using DataObjectBaseLibrary.Data;
+    using DataObjectBaseLibrary.Interfaces;
 
     /// <summary>
     /// Represents a row in a result from a database-query.
     /// </summary>
-    public class ResultRow : IEnumerable<DatabaseObject>
+    public class ResultRow : IResultRow
     {
-        private readonly DatabaseObject[] cells;
+        private readonly object[] cells;
         private readonly ColumnInfo[] columnInfos;
 
         /// <summary>
@@ -23,10 +24,10 @@ namespace DataObjectBaseLibrary.Helpers
         /// </summary>
         /// <param name="cells">row of database objects.</param>
         /// <param name="columnInfos">array of column info structs.</param>
-        public ResultRow(DatabaseObject[] cells, ColumnInfo[] columnInfos)
+        public ResultRow(object[] cells, ColumnInfo[] columnInfos)
         {
             // deep copy input array.
-            this.cells = new DatabaseObject[cells.Length];
+            this.cells = new object[cells.Length];
             for (int i = 0; i < cells.Length; i++)
             {
                 this.cells[i] = cells[i];
@@ -35,12 +36,8 @@ namespace DataObjectBaseLibrary.Helpers
             this.columnInfos = columnInfos;
         }
 
-        /// <summary>
-        /// Retrieves databaseObject from row by specifying column name.
-        /// </summary>
-        /// <param name="colName">Column's name.</param>
-        /// <returns>DatabaseObject.</returns>
-        public DatabaseObject this[string colName]
+        /// <inheritdoc/>
+        public object this[string colName]
         {
             get
             {
@@ -58,12 +55,8 @@ namespace DataObjectBaseLibrary.Helpers
             }
         }
 
-        /// <summary>
-        /// Gets the databaseObject at zerobased index.
-        /// </summary>
-        /// <param name="index">index of column.</param>
-        /// <returns>Database Object.</returns>
-        public DatabaseObject this[int index]
+        /// <inheritdoc/>
+        public object this[int index]
         {
             get
             {
@@ -71,11 +64,7 @@ namespace DataObjectBaseLibrary.Helpers
             }
         }
 
-        /// <summary>
-        /// Gets a column's name.
-        /// </summary>
-        /// <param name="i">zero-based index of column.</param>
-        /// <returns>String column name.</returns>
+        /// <inheritdoc/>
         public string GetColumnName(int i)
         {
             if (i < 0 || i >= this.columnInfos.Length)
@@ -86,11 +75,7 @@ namespace DataObjectBaseLibrary.Helpers
             return this.columnInfos[i].Name;
         }
 
-        /// <summary>
-        /// Gets the datatype of a column.
-        /// </summary>
-        /// <param name="i">zero-based column index.</param>
-        /// <returns>A Type instance.</returns>
+        /// <inheritdoc/>
         public Type GetColumnType(int i)
         {
             if (i < 0 || i >= this.columnInfos.Length)
@@ -102,7 +87,7 @@ namespace DataObjectBaseLibrary.Helpers
         }
 
         /// <inheritdoc/>
-        public IEnumerator<DatabaseObject> GetEnumerator()
+        public IEnumerator<object> GetEnumerator()
         {
             return new CellEnum(this.cells);
         }
@@ -117,6 +102,5 @@ namespace DataObjectBaseLibrary.Helpers
         {
             return this.GetEnumerator();
         }
-
     }
 }

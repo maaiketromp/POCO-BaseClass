@@ -66,7 +66,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <param name="db">Database connection.</param>
         /// <param name="data">Resultobject containing data to populate object with.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public DataObjectBase(IDatabaseConnectorWrapper db, ResultRow data, bool activeUpdate)
+        public DataObjectBase(IDatabaseConnectorWrapper db, IResultRow data, bool activeUpdate)
         {
             this.Db = db;
             this.ActiveUpdate = activeUpdate;
@@ -145,7 +145,7 @@ namespace DataObjectBaseLibrary.DataObjects
             this.UpdatePropertyInternal(value, propName, t);
         }
 
-        private void PopulateWithIResultTable(ResultRow data)
+        private void PopulateWithIResultTable(IResultRow data)
         {
             this.populating = true;
             Type t = this.GetType();
@@ -157,7 +157,7 @@ namespace DataObjectBaseLibrary.DataObjects
 
                 if (prop == null)
                 {
-                    if (data[i].ValueObject == null)
+                    if (data[i] == null)
                     {
                         continue;
                     }
@@ -173,10 +173,10 @@ namespace DataObjectBaseLibrary.DataObjects
                 }
                 else
                 {
-                    if (data[i].ValueObject != null)
+                    if (data[i] != null)
                     {
                         Type type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                        prop.SetValue(this, Convert.ChangeType(data[i].ValueObject, type));
+                        prop.SetValue(this, Convert.ChangeType(data[i], type));
                     }
                     else if (Nullable.GetUnderlyingType(prop.PropertyType) != null)
                     {

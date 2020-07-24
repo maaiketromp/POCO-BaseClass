@@ -1,5 +1,5 @@
-﻿// <copyright file="Order.cs" company="PlaceholderCompany">
-// Copyright (c) PlaceholderCompany. All rights reserved.
+﻿// <copyright file="Order.cs" company="Maaike Tromp">
+// Copyright (c) Maaike Tromp. All rights reserved.
 // </copyright>
 
 namespace DataObjectBaseLibrary.DataObjects

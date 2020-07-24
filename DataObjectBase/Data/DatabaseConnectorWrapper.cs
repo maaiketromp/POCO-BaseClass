@@ -39,15 +39,10 @@ namespace DataObjectBaseLibrary.Data
 
             while (rdr.Read())
             {
-                DatabaseObject[] cells = new DatabaseObject[rdr.FieldCount];
+                object[] cells = new object[rdr.FieldCount];
                 for (int i = 0; i < rdr.FieldCount; i++)
                 {
-                    DatabaseObject cell;
-                    Type t = columns
-                        .Where(c => c.Name == rdr.GetName(i))
-                        .Select(c => c.Type)
-                        .FirstOrDefault();
-                    cell = new DatabaseObject(t, rdr[i]);
+                    object cell = rdr[i];
                 }
 
                 var row = new ResultRow(cells, columns.ToArray());
@@ -87,7 +82,8 @@ namespace DataObjectBaseLibrary.Data
             {
                 for (int j = 0; j < result[i].Count(); j++)
                 {
-                    rowData.Add(result.GetColumnName(j), result[i].ElementAt(j));
+                    DatabaseObject addition = new DatabaseObject(result.GetColumnType(j), result[i].ElementAt(j));
+                    rowData.Add(result.GetColumnName(j), addition);
                 }
 
                 output.Add(rowData);

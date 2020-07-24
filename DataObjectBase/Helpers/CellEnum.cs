@@ -12,23 +12,23 @@ namespace DataObjectBaseLibrary.Helpers
     /// <summary>
     /// Cell enumerator.
     /// </summary>
-    public class CellEnum : IEnumerator<DatabaseObject>
+    public class CellEnum : IEnumerator<object>
     {
-        private readonly DatabaseObject[] cells;
+        private readonly object[] cells;
         private int position;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CellEnum"/> class.
         /// </summary>
         /// <param name="cells">Array of databaseObject structs.</param>
-        public CellEnum(DatabaseObject[] cells)
+        public CellEnum(object[] cells)
         {
             this.cells = cells;
             this.position = -1;
         }
 
         /// <inheritdoc/>
-        public DatabaseObject Current
+        public object Current
         {
             get
             {

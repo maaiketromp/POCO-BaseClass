@@ -17,4 +17,8 @@
     <ProjectReference Include="..\DataObjectBase\DataObjectBaseLibrary.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>
