@@ -1,34 +1,40 @@
-﻿using DataObjectBaseLibrary.Data;
-// <summary>
-// Example of a POCO Base object.
-// </summary>
-// <copyright file="CellEnum.cs" company="">
-// Copyright (C) 2020 Maaike Tromp
+﻿// <copyright file="CellEnum.cs" company="Maaike Tromp">
+// Copyright (c) Maaike Tromp. All rights reserved.
+// </copyright>
 
 namespace DataObjectBaseLibrary.Helpers
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using DataObjectBaseLibrary.Data;
 
+    /// <summary>
+    /// Cell enumerator.
+    /// </summary>
     public class CellEnum : IEnumerator<DatabaseObject>
     {
-        private DatabaseObject[] cells;
+        private readonly DatabaseObject[] cells;
         private int position;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CellEnum"/> class.
+        /// </summary>
+        /// <param name="cells">Array of databaseObject structs.</param>
         public CellEnum(DatabaseObject[] cells)
         {
             this.cells = cells;
             this.position = -1;
         }
 
+        /// <inheritdoc/>
         public DatabaseObject Current
         {
             get
             {
                 try
                 {
-                    return this.cells[position];
+                    return this.cells[this.position];
                 }
                 catch (IndexOutOfRangeException)
                 {
@@ -37,18 +43,22 @@ namespace DataObjectBaseLibrary.Helpers
             }
         }
 
+        /// <inheritdoc/>
         object IEnumerator.Current { get => this.Current; }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
         }
 
+        /// <inheritdoc/>
         public bool MoveNext()
         {
             this.position++;
-            return (this.position < this.cells.Length);
+            return this.position < this.cells.Length;
         }
 
+        /// <inheritdoc/>
         public void Reset()
         {
             this.position = -1;

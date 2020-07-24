@@ -1,8 +1,6 @@
-﻿// <summary>
-// Example of a POCO Base object.
-// </summary>
-// <copyright file="Order.cs" company="">
-// Copyright (C) 2020 Maaike Tromp
+﻿// <copyright file="Order.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 
 namespace DataObjectBaseLibrary.DataObjects
 {
@@ -10,8 +8,9 @@ namespace DataObjectBaseLibrary.DataObjects
     using System.Collections.Generic;
     using DataObjectBaseLibrary.Attributes;
     using DataObjectBaseLibrary.Data;
+    using DataObjectBaseLibrary.Helpers;
     using DataObjectBaseLibrary.Interfaces;
-  
+
     /// <summary>
     /// Represents and holds the data off an order.
     /// </summary>
@@ -24,17 +23,17 @@ namespace DataObjectBaseLibrary.DataObjects
         private bool isSet;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Order"/> class 
+        /// Initializes a new instance of the <see cref="Order"/> class.
         /// </summary>
         /// <param name="db">Database connection.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public Order(IDatabaseConnectorWrapper db, bool activeLoading = false)
-            : base(db, activeLoading)
+        public Order(IDatabaseConnectorWrapper db, bool activeUpdate = false)
+            : base(db, activeUpdate)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Order"/> class 
+        /// Initializes a new instance of the <see cref="Order"/> class.
         /// </summary>
         /// <param name="db">Database connection.</param>
         /// <param name="objectData">Data to populate the object.</param>
@@ -45,7 +44,7 @@ namespace DataObjectBaseLibrary.DataObjects
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Customer"/> class 
+        /// Initializes a new instance of the <see cref="Order"/> class.
         /// </summary>
         /// <param name="db">Database connection.</param>
         /// <param name="id">Id of the record to be loaded from the database.</param>
@@ -56,12 +55,12 @@ namespace DataObjectBaseLibrary.DataObjects
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Customer"/> class.
+        /// Initializes a new instance of the <see cref="Order"/> class.
         /// </summary>
         /// <param name="db">Database wrapper instance.</param>
         /// <param name="data">Data to populate object.</param>
         /// <param name="activeUpdate">Value indicating whether the object should update any changes immeadiately to the database.</param>
-        public Order(IDatabaseConnectorWrapper db, IResultTable data, bool activeUpdate)
+        public Order(IDatabaseConnectorWrapper db, ResultRow data, bool activeUpdate)
             : base(db, data, activeUpdate)
         {
         }

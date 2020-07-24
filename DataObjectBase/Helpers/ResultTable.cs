@@ -1,4 +1,6 @@
-﻿
+﻿// <copyright file="ResultTable.cs" company="Maaike Tromp">
+// Copyright (c) Maaike Tromp. All rights reserved.
+// </copyright>
 
 namespace DataObjectBaseLibrary.Helpers
 {
@@ -9,28 +11,46 @@ namespace DataObjectBaseLibrary.Helpers
     using DataObjectBaseLibrary.Data;
     using DataObjectBaseLibrary.Interfaces;
 
+    /// <summary>
+    /// ResultObject.
+    /// </summary>
     public class ResultTable : IResultTable
     {
         private ResultRow[] rows;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResultTable"/> class.
+        /// </summary>
+        /// <param name="columnInfo">Array of structs containing column information.</param>
         public ResultTable(ColumnInfo[] columnInfo)
         {
             this.rows = new ResultRow[0];
             this.ColumnInfo = columnInfo;
         }
 
+        /// <summary>
+        /// Gets array of column information.
+        /// </summary>
         public ColumnInfo[] ColumnInfo { get; }
 
-        public int Count => rows.Length;
+        /// <inheritdoc/>
+        public int Count => this.rows.Length;
 
+        /// <inheritdoc/>
         public bool IsReadOnly => false;
 
+        /// <summary>
+        /// Gets an Resultrow element on zero-based index.
+        /// </summary>
+        /// <param name="index">the nth element to access.</param>
+        /// <returns>A resultrow object.</returns>
         public ResultRow this[int index]
         {
-            get 
+            get
             {
                 return (ResultRow)this.rows[index];
             }
+
             set
             {
                 if (index < this.rows.Length)
@@ -48,38 +68,41 @@ namespace DataObjectBaseLibrary.Helpers
             }
         }
 
+        /// <inheritdoc/>
         public string GetColumnName(int i)
         {
             if (i >= this.ColumnInfo.Length)
             {
                 throw new IndexOutOfRangeException();
             }
+
             return this.ColumnInfo[i].Name;
         }
 
+        /// <inheritdoc/>
         public Type GetColumnType(int i)
         {
             if (i >= this.ColumnInfo.Length)
             {
                 throw new IndexOutOfRangeException();
             }
+
             return this.ColumnInfo[i].Type;
         }
 
+        /// <inheritdoc/>
         public IEnumerator<ResultRow> GetEnumerator()
         {
             return new RowEnum(this.rows);
         }
-        private IEnumerator GetEnumerator1()
-        {
-            return this.GetEnumerator();
-        }
 
+        /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return GetEnumerator1();
+            return this.GetEnumerator1();
         }
 
+        /// <inheritdoc/>
         public void Add(ResultRow item)
         {
             var temp = new ResultRow[this.rows.Length + 1];
@@ -88,15 +111,18 @@ namespace DataObjectBaseLibrary.Helpers
             {
                 temp[i] = this.rows[i];
             }
+
             temp[i] = item;
             this.rows = temp;
         }
 
+        /// <inheritdoc/>
         public void Clear()
         {
             this.rows = null;
         }
 
+        /// <inheritdoc/>
         public bool Contains(ResultRow item)
         {
             if (this.rows.Contains(item))
@@ -109,14 +135,23 @@ namespace DataObjectBaseLibrary.Helpers
             }
         }
 
+        /// <inheritdoc/>
         public void CopyTo(ResultRow[] array, int arrayIndex)
         {
             if (array == null)
+            {
                 throw new ArgumentNullException("The array cannot be null.");
+            }
+
             if (arrayIndex < 0)
+            {
                 throw new ArgumentOutOfRangeException("The starting array index cannot be negative.");
-            if (Count > array.Length - arrayIndex + 1)
+            }
+
+            if (this.Count > array.Length - arrayIndex + 1)
+            {
                 throw new ArgumentException("The destination array has fewer elements than the collection.");
+            }
 
             for (int i = 0; i < this.rows.Length; i++)
             {
@@ -124,6 +159,7 @@ namespace DataObjectBaseLibrary.Helpers
             }
         }
 
+        /// <inheritdoc/>
         public bool Remove(ResultRow item)
         {
             bool result = false;
@@ -134,19 +170,23 @@ namespace DataObjectBaseLibrary.Helpers
                 var temp = new ResultRow[this.rows.Length - 1];
                 for (int i = 0; i < this.rows.Length; i++)
                 {
-                    
                     if (this.rows[i].Equals(item))
                     {
                         continue;
                     }
 
-                    temp[j++] = rows[i];
+                    temp[j++] = this.rows[i];
                 }
+
                 this.rows = temp;
             }
 
             return result;
+        }
 
+        private IEnumerator GetEnumerator1()
+        {
+            return this.GetEnumerator();
         }
     }
 }

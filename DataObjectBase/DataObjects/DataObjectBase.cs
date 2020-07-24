@@ -1,8 +1,6 @@
-﻿// <summary>
-// Example of a POCO Base object.
-// </summary>
-// <copyright file="DataObjectBase.cs" company="">
-// Copyright (C) 2020 Maaike Tromp
+﻿// <copyright file="DataObjectBase.cs" company="Maaike Tromp">
+// Copyright (c) Maaike Tromp. All rights reserved.
+// </copyright>
 
 namespace DataObjectBaseLibrary.DataObjects
 {
@@ -12,10 +10,11 @@ namespace DataObjectBaseLibrary.DataObjects
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-    using Microsoft.Data.SqlClient;
     using DataObjectBaseLibrary.Attributes;
     using DataObjectBaseLibrary.Data;
+    using DataObjectBaseLibrary.Helpers;
     using DataObjectBaseLibrary.Interfaces;
+    using Microsoft.Data.SqlClient;
 
     /// <summary>
     /// A base class for a POCO that interacts with the database.
@@ -27,7 +26,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
-        /// <param name="db">Databaseconnection/ </param>
+        /// <param name="db">Database connection. </param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public DataObjectBase(IDatabaseConnectorWrapper db, bool activeUpdate)
         {
@@ -38,7 +37,8 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
-        /// <param name="db">The databaseconnection.</param>
+        /// <param name="db">Database connection.</param>
+        /// <param name="id">Id of the database record to populate object with.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public DataObjectBase(IDatabaseConnectorWrapper db, int id, bool activeUpdate)
         {
@@ -51,6 +51,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
         /// </summary>
         /// <param name="db">The databaseconnection.</param>
+        /// <param name="objectData">Data to populate object with.</param>
         /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
         public DataObjectBase(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate)
         {
@@ -59,13 +60,18 @@ namespace DataObjectBaseLibrary.DataObjects
             this.Populate(objectData);
         }
 
-        public DataObjectBase(IDatabaseConnectorWrapper db, IResultTable data, bool activeUpdate)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
+        /// </summary>
+        /// <param name="db">Database connection.</param>
+        /// <param name="data">Resultobject containing data to populate object with.</param>
+        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
+        public DataObjectBase(IDatabaseConnectorWrapper db, ResultRow data, bool activeUpdate)
         {
             this.Db = db;
             this.ActiveUpdate = activeUpdate;
             this.PopulateWithIResultTable(data);
         }
-
 
         /// <inheritdoc/>
         public bool ActiveUpdate { get; set; }
@@ -108,21 +114,46 @@ namespace DataObjectBaseLibrary.DataObjects
             return this.Db.PrepareAndExecuteNonQuery(commandText: sql);
         }
 
-        public void PopulateWithIResultTable(IResultTable queryResult)
+        /// <summary>
+        /// Updates a single property in the database.
+        /// </summary>
+        /// <param name="value">The value from the set method of the property.</param>
+        /// <param name="propName">Name of the caller.</param>
+        /// <typeparam name="T">Type of the value parameter.</typeparam>
+        protected void UpdateProperty<T>(T value, [CallerMemberName] string propName = null)
         {
-            if (queryResult.Count() > 1)
+            if (this.populating || !this.ActiveUpdate)
             {
-                throw new InvalidOperationException("Multiple records of inputdata.");
+                return;
             }
 
+            if (propName == null)
+            {
+                throw new InvalidOperationException("Cannot update without a propertyName!");
+            }
+
+            Type t = this.GetType();
+            var prop = t.GetProperty(propName);
+
+            // Do not update properties with Id or Default Attribute.
+            if (Attribute.IsDefined(prop, typeof(DefaultColumnAttribute)) ||
+                Attribute.IsDefined(prop, typeof(IdPropertyAttribute)))
+            {
+                throw new InvalidOperationException("Updating Id or Default column not allowed.");
+            }
+
+            this.UpdatePropertyInternal(value, propName, t);
+        }
+
+        private void PopulateWithIResultTable(ResultRow data)
+        {
             this.populating = true;
             Type t = this.GetType();
-            var data = queryResult.First();
-            int colNum = queryResult[0].Count();
+            int nbrOfCols = data.Count();
 
-            for (int i = 0; i < colNum; i++)
+            for (int i = 0; i < nbrOfCols; i++)
             {
-                PropertyInfo prop = t.GetProperty(queryResult.GetColumnName(i));
+                PropertyInfo prop = t.GetProperty(data.GetColumnName(i));
 
                 if (prop == null)
                 {
@@ -133,10 +164,10 @@ namespace DataObjectBaseLibrary.DataObjects
                     else
                     {
                         throw new InvalidOperationException(
-                            $"Object does not contains a property {queryResult.GetColumnName(i)}, but resultset contains a non-null value.");
+                            $"Object does not contains a property {data.GetColumnName(i)}, but resultset contains a non-null value.");
                     }
                 }
-                else if (!this.ValidateType(prop, data[i].ValueType))
+                else if (!this.ValidateType(prop, data.GetColumnType(i)))
                 {
                     throw new ArgumentException($"Unsafe Conversion not permitted. Type validation for {prop.Name} failed.");
                 }
@@ -161,11 +192,6 @@ namespace DataObjectBaseLibrary.DataObjects
             this.populating = false;
         }
 
-
-        /// <summary>
-        /// Populates this object with a provided SqlDataReader.
-        /// </summary>
-        /// <param name="objectData">A Datareader containing data for this object.</param>
         private void Populate(Dictionary<string, DatabaseObject> objectData)
         {
             this.populating = true;
@@ -211,10 +237,6 @@ namespace DataObjectBaseLibrary.DataObjects
             this.populating = false;
         }
 
-        /// <summary>
-        /// Set an id and populate the object.
-        /// </summary>
-        /// <param name="id">Integer Id of object.</param>
         private void PopulateById(int id)
         {
             Type t = this.GetType();
@@ -232,42 +254,8 @@ namespace DataObjectBaseLibrary.DataObjects
             {
                 new SqlParameter("@Id", id),
             };
-
-            
             var objectData = this.Db.GetResultAsDictionary(commandText: sql, parameters: parameters).First();
-                        
             this.Populate(objectData);
-        }
-
-        /// <summary>
-        /// Updates a single property in the database.
-        /// </summary>
-        /// <param name="value">The value from the set method of the property.</param>
-        /// <param name="propName">Name of the caller.</param>
-        /// <typeparam name="T">Type of the value parameter.</typeparam>
-        protected void UpdateProperty<T>(T value, [CallerMemberName] string propName = null)
-        {
-            if (this.populating || !this.ActiveUpdate)
-            {
-                return;
-            }
-
-            if (propName == null)
-            {
-                throw new InvalidOperationException("Cannot update without a propertyName!");
-            }
-
-            Type t = this.GetType();
-            var prop = t.GetProperty(propName);
-
-            // Do not update properties with Id or Default Attribute.
-            if (Attribute.IsDefined(prop, typeof(DefaultColumnAttribute)) ||
-                Attribute.IsDefined(prop, typeof(IdPropertyAttribute)))
-            {
-                throw new InvalidOperationException("Updating Id or Default column not allowed.");
-            }
-
-            this.UpdatePropertyInternal(value, propName, t);
         }
 
         private SqlDataReader GetColumnInfo(string tableName)
@@ -309,7 +297,6 @@ namespace DataObjectBaseLibrary.DataObjects
                               where Attribute.IsDefined(p, typeof(DefaultColumnAttribute))
                               select p.Name;
 
-
             if (defaultVals.Count() > 0)
             {
                 output += ", " + string.Join(" , ", defaultVals.Select(d => $" {d} = DEFAULT "));
@@ -336,10 +323,6 @@ namespace DataObjectBaseLibrary.DataObjects
                 throw new InvalidOperationException("Can't update an non-existing record.");
             }
         }
-
-
-
-
 
         private bool ValidateType(PropertyInfo prop, Type dataType)
         {

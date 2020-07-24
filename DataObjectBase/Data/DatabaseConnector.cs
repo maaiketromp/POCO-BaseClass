@@ -1,17 +1,15 @@
-﻿// <summary>
-// Example of a POCO Base object.
-// </summary>
-// <copyright file="DatabaseConnector.cs" company="">
-// Copyright (C) 2020 Maaike Tromp
+﻿// <copyright file="DatabaseConnector.cs" company="Maaike Tromp">
+// Copyright (c) Maaike Tromp. All rights reserved.
+// </copyright>
 
 namespace DataObjectBaseLibrary.Data
 {
     using System;
-    using System.Data;
-    using Microsoft.Data.SqlClient;
-    using DataObjectBaseLibrary.Interfaces;
     using System.Collections.Generic;
+    using System.Data;
     using System.Linq;
+    using DataObjectBaseLibrary.Interfaces;
+    using Microsoft.Data.SqlClient;
 
     /// <inheritdoc/>
     public class DatabaseConnector : IDatabaseConnector, IDisposable
@@ -21,7 +19,7 @@ namespace DataObjectBaseLibrary.Data
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DatabaseConnector"/> class using the connection string.
-        /// (For development and testing purposes only)
+        /// (For development and testing purposes only).
         /// </summary>
         /// <param name="connString">Database connectionString.</param>
         public DatabaseConnector(string connString)
@@ -63,7 +61,7 @@ namespace DataObjectBaseLibrary.Data
         /// <inheritdoc/>
         public List<Dictionary<string, DatabaseObject>> ExecuteQueryGetResult(
             string commandText,
-            CommandType type  = CommandType.Text,
+            CommandType type = CommandType.Text,
             SqlParameter[] parameters = null)
         {
             using var rdr = this.PrepareAndExecuteQuery(commandText, type, parameters);
@@ -74,7 +72,7 @@ namespace DataObjectBaseLibrary.Data
                 return outputList;
             }
 
-            var colTypes = GetColumnDictionary(rdr);
+            var colTypes = this.GetColumnDictionary(rdr);
 
             while (rdr.Read())
             {
@@ -83,7 +81,7 @@ namespace DataObjectBaseLibrary.Data
                 for (int i = 0; i < rdr.FieldCount; i++)
                 {
                     string colName = rdr.GetName(i);
-                    if ((rdr[i] is DBNull))
+                    if (rdr[i] is DBNull)
                     {
                         if (row.ContainsKey(colName))
                         {
@@ -93,7 +91,6 @@ namespace DataObjectBaseLibrary.Data
                         {
                             // replace DBNull object with a null value.
                             row.Add(colName, new DatabaseObject(colTypes[colName], null));
-
                         }
                     }
                     else
@@ -117,6 +114,15 @@ namespace DataObjectBaseLibrary.Data
             return outputList;
         }
 
+        /// <inheritdoc/>
+        public void Dispose()
+        {
+            if (this.connection.State != 0)
+            {
+                this.connection.Close();
+            }
+        }
+
         private Dictionary<string, Type> GetColumnDictionary(SqlDataReader rdr)
         {
             var columns = from col in rdr.GetColumnSchema()
@@ -133,17 +139,6 @@ namespace DataObjectBaseLibrary.Data
             }
 
             return outputDict;
-        }
-
-        /// <summary>
-        /// Closes closes the SqlConnection.
-        /// </summary>
-        public void Dispose()
-        {
-            if (this.connection.State != 0)
-            {
-                this.connection.Close();
-            }
         }
 
         private void Initialize()

@@ -1,8 +1,6 @@
-﻿// <summary>
-// Example of a POCO Base object.
-// </summary>
-// <copyright file="DatabaseObject.cs" company="">
-// Copyright (C) 2020 Maaike Tromp
+﻿// <copyright file="DatabaseObject.cs" company="Maaike Tromp">
+// Copyright (c) Maaike Tromp. All rights reserved.
+// </copyright>
 
 namespace DataObjectBaseLibrary.Data
 {

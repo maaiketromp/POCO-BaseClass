@@ -1,8 +1,6 @@
-﻿// <summary>
-// Example of a POCO Base object.
-// </summary>
-// <copyright file="IdPropertyAttribute.cs" company="">
-// Copyright (C) 2020 Maaike Tromp
+﻿// <copyright file="IdPropertyAttribute.cs" company="Maaike Tromp">
+// Copyright (c) Maaike Tromp. All rights reserved.
+// </copyright>
 
 namespace DataObjectBaseLibrary.Attributes
 {

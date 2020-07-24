@@ -1,8 +1,6 @@
-﻿// <summary>
-// Example of a POCO Base object.
-// </summary>
-// <copyright file="IDatabaseConnector.cs" company="">
-// Copyright (C) 2020 Maaike Tromp
+﻿// <copyright file="IDatabaseConnector.cs" company="Maaike Tromp">
+// Copyright (c) Maaike Tromp. All rights reserved.
+// </copyright>
 
 namespace DataObjectBaseLibrary.Interfaces
 {
@@ -10,7 +8,7 @@ namespace DataObjectBaseLibrary.Interfaces
     using System.Data;
     using DataObjectBaseLibrary.Data;
     using Microsoft.Data.SqlClient;
-    
+
     /// <summary>
     /// Interface for the DatabaseConnector.
     /// </summary>
@@ -46,7 +44,7 @@ namespace DataObjectBaseLibrary.Interfaces
         /// <param name="commandText">Sql string.</param>
         /// <param name="type">Command type.</param>
         /// <param name="parameters">An array of SqlParameters to bind.</param>
-        /// <returns></returns>
+        /// <returns> A list of Dictionaries, containing object and column names.</returns>
         public List<Dictionary<string, DatabaseObject>> ExecuteQueryGetResult(
             string commandText,
             CommandType type = CommandType.Text,
