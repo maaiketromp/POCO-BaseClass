@@ -20,10 +20,10 @@ This project might interest you.
 This base class creates a generic solution, using reflection to retrieve data like property names and values from the derived classes.
 
 The base object is able to:
-1. update an entire object to the database.
-2. populate an entire object with an id.
-3. populate an object, with supplied data.
-4. update a single property in the database.
+1. Update an entire object to the database.
+2. Populate an entire object with an id.
+3. Populate an object, with supplied data.
+4. Update a single property in the database.
 
 (For a compound primary key only 3. is not supported.) 
 
@@ -31,6 +31,7 @@ The base class will check for any behaviour that is not allowed. Examples:
 1. You are not allowed to update properties with an id attribute. 
 1. If the resultset contains a non-null value, but the object does not contain a corresponding property, an exception will be thrown. 
 
-Supplied is a class library, an example application and a testproject that shows all behaviour, and tests also all exceptions.
+Supplied is a class library, an example application and a testproject. 
+Not only normal cases are tested, also all Exceptions are triggered and tested if behaviour is as expected.
 
 This assignment's first release was in July 2020.
