@@ -7,7 +7,6 @@ namespace DataObjectBaseLibrary.DataObjects
     using System.Collections.Generic;
     using DataObjectBaseLibrary.Attributes;
     using DataObjectBaseLibrary.Data;
-    using DataObjectBaseLibrary.Helpers;
     using DataObjectBaseLibrary.Interfaces;
 
     /// <summary>
@@ -46,7 +45,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <param name="db">Database wrapper instance.</param>
         /// <param name="data">Data to populate object.</param>
         /// <param name="activeUpdate">Value indicating whether the object should update any changes immeadiately to the database.</param>
-        public OrderDetails(IDatabaseConnectorWrapper db, ResultRow data, bool activeUpdate)
+        public OrderDetails(IDatabaseConnectorWrapper db, IResultRow data, bool activeUpdate = false)
             : base(db, data, activeUpdate)
         {
         }

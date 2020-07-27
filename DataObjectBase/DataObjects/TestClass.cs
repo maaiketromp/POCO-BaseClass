@@ -43,7 +43,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <param name="db">Database connection.</param>
         /// <param name="objectData">Data to populate object.</param>
         /// <param name="activeUpdate">A value indicating whether the object should update changes immediately to the database.</param>
-        public TestClass(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate)
+        public TestClass(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
             : base(db, objectData, activeUpdate)
         {
         }
@@ -54,7 +54,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <param name="db">Database wrapper instance.</param>
         /// <param name="data">Data to populate object.</param>
         /// <param name="activeUpdate">Value indicating whether the object should update any changes immeadiately to the database.</param>
-        public TestClass(IDatabaseConnectorWrapper db, ResultRow data, bool activeUpdate)
+        public TestClass(IDatabaseConnectorWrapper db, IResultRow data, bool activeUpdate = false)
             : base(db, data, activeUpdate)
         {
         }

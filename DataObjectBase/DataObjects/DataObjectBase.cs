@@ -12,7 +12,6 @@ namespace DataObjectBaseLibrary.DataObjects
     using System.Runtime.CompilerServices;
     using DataObjectBaseLibrary.Attributes;
     using DataObjectBaseLibrary.Data;
-    using DataObjectBaseLibrary.Helpers;
     using DataObjectBaseLibrary.Interfaces;
     using Microsoft.Data.SqlClient;
 
@@ -70,7 +69,7 @@ namespace DataObjectBaseLibrary.DataObjects
         {
             this.Db = db;
             this.ActiveUpdate = activeUpdate;
-            this.PopulateWithIResultTable(data);
+            this.Populate(data);
         }
 
         /// <inheritdoc/>
@@ -145,7 +144,7 @@ namespace DataObjectBaseLibrary.DataObjects
             this.UpdatePropertyInternal(value, propName, t);
         }
 
-        private void PopulateWithIResultTable(IResultRow data)
+        private void Populate(IResultRow data)
         {
             this.populating = true;
             Type t = this.GetType();
@@ -352,7 +351,7 @@ namespace DataObjectBaseLibrary.DataObjects
                 }
             }
 
-            // database reader does not return nullables, get underlying type in case of nullable property.
+            // allows nullables in properties. SqlDataReader will not supply a nullable type.
             var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
             if (propType.IsEquivalentTo(dataType))
             {

@@ -1,49 +1,46 @@
-﻿// <copyright file="ResultRow.cs" company="Maaike Tromp">
-// Copyright (c) Maaike Tromp. All rights reserved.
-// </copyright>
-
-namespace DataObjectBaseLibrary.Helpers
+﻿namespace DataObjectBaseLibraryTests.Data
 {
+    using DataObjectBaseLibrary.Data;
+    using DataObjectBaseLibrary.Helpers;
+    using DataObjectBaseLibrary.Interfaces;
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using DataObjectBaseLibrary.Data;
-    using DataObjectBaseLibrary.Interfaces;
 
-    /// <summary>
-    /// Represents a row in a result from a database-query.
-    /// </summary>
-    public class ResultRow : IResultRow
+    class MockOrderDetailsDataNulls : IResultRow
     {
+        private int? orderId = null;
+        private int? productId = null;
+        private int? quantity = null;
+
+
         private readonly object[] cells;
         private readonly ColumnInfo[] columnInfos;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResultRow"/> class.
-        /// </summary>
-        /// <param name="cells">row of database objects.</param>
-        /// <param name="columnInfos">array of column info structs.</param>
-        public ResultRow(object[] cells, ColumnInfo[] columnInfos)
+        public MockOrderDetailsDataNulls()
         {
-            // deep copy input array.
-            this.cells = new object[cells.Length];
-            for (int i = 0; i < cells.Length; i++)
+            this.cells = new object[]
             {
-                this.cells[i] = cells[i];
-            }
-
-            this.columnInfos = columnInfos;
+                this.orderId,
+                this.productId,
+                this.quantity,
+            };
+            this.columnInfos = new ColumnInfo[]
+            {
+            new ColumnInfo("OrderId", typeof(int)),
+            new ColumnInfo("ProductId", typeof(int)),
+            new ColumnInfo("Quantity", typeof(int)),
+            };
         }
 
-        /// <inheritdoc/>
         public object this[string colName]
         {
             get
             {
                 ColumnInfo col = (from colInfo in this.columnInfos
-                            where colInfo.Name == colName
-                            select colInfo).First();
+                                  where colInfo.Name == colName
+                                  select colInfo).First();
 
                 if (col.Equals(default(ColumnInfo)))
                 {
@@ -55,7 +52,6 @@ namespace DataObjectBaseLibrary.Helpers
             }
         }
 
-        /// <inheritdoc/>
         public object this[int index]
         {
             get
@@ -64,7 +60,6 @@ namespace DataObjectBaseLibrary.Helpers
             }
         }
 
-        /// <inheritdoc/>
         public string GetColumnName(int i)
         {
             if (i < 0 || i >= this.columnInfos.Length)
@@ -75,7 +70,6 @@ namespace DataObjectBaseLibrary.Helpers
             return this.columnInfos[i].Name;
         }
 
-        /// <inheritdoc/>
         public Type GetColumnType(int i)
         {
             if (i < 0 || i >= this.columnInfos.Length)

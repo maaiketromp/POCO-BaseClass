@@ -59,7 +59,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <param name="db">Database wrapper instance.</param>
         /// <param name="data">Data to populate object.</param>
         /// <param name="activeUpdate">Value indicating whether the object should update any changes immeadiately to the database.</param>
-        public Customer(IDatabaseConnectorWrapper db, ResultRow data, bool activeUpdate)
+        public Customer(IDatabaseConnectorWrapper db, IResultRow data, bool activeUpdate)
             : base(db, data, activeUpdate)
         {
         }

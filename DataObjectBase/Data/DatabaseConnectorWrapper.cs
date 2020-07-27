@@ -33,9 +33,9 @@ namespace DataObjectBaseLibrary.Data
         {
             using var rdr = this.db.PrepareAndExecuteQuery(commandText, parameters: parameters);
 
-            var columns = from col in rdr.GetColumnSchema()
-                          select new ColumnInfo(col.ColumnName, col.DataType);
-            ResultTable result = new ResultTable(columns.ToArray());
+            ColumnInfo[] columns = (from col in rdr.GetColumnSchema()
+                          select new ColumnInfo(col.ColumnName, col.DataType)).ToArray();
+            ResultTable result = new ResultTable(columns);
 
             while (rdr.Read())
             {
@@ -45,7 +45,7 @@ namespace DataObjectBaseLibrary.Data
                     object cell = rdr[i];
                 }
 
-                var row = new ResultRow(cells, columns.ToArray());
+                var row = new ResultRow(cells, columns);
                 result.Add(row);
             }
 
