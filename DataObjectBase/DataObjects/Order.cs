@@ -21,6 +21,7 @@ namespace DataObjectBaseLibrary.DataObjects
         private int employeeId;
         private DateTime shippingDate;
         private bool isSet;
+        private DateTime timeOfOrder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Order"/> class.
@@ -130,6 +131,22 @@ namespace DataObjectBaseLibrary.DataObjects
                 {
                     this.shippingDate = value;
                     this.UpdateProperty(value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the time the order is inserted into the database system.
+        /// </summary>
+        [DefaultColumn]
+        public DateTime TimeOfOrder
+        {
+            get => this.timeOfOrder;
+            set
+            {
+                if (this.timeOfOrder != value)
+                {
+                    this.timeOfOrder = value;
                 }
             }
         }

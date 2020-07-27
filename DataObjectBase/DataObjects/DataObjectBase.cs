@@ -88,24 +88,23 @@ namespace DataObjectBaseLibrary.DataObjects
             string sql = $"UPDATE {t.Name} SET ";
             string condition = this.GetConditionForUpdate(props);
 
-            using (var rdr = this.GetColumnInfo(t.Name))
+            var result = this.GetColumnInfo(t.Name);
+
+            foreach (var row in result)
             {
-                while (rdr.Read())
+                string colName = Convert.ToString(row["COLUMN_NAME"]);
+                string defaultVal = Convert.ToString(row["COLUMN_DEFAULT"]);
+                if (string.IsNullOrEmpty(defaultVal))
                 {
-                    string colName = Convert.ToString(rdr["COLUMN_NAME"]);
-                    string defaultVal = Convert.ToString(rdr["COLUMN_DEFAULT"]);
-                    if (string.IsNullOrEmpty(defaultVal))
+                    if (colName != "Id")
                     {
-                        if (colName != "Id")
-                        {
-                            var prop = t.GetProperty(colName);
-                            sql += $" {colName} = '{prop.GetValue(this)}', ";
-                        }
+                        var prop = t.GetProperty(colName);
+                        sql += $" {colName} = '{prop.GetValue(this)}', ";
                     }
-                    else
-                    {
-                        sql += $" {colName} = DEFAULT , ";
-                    }
+                }
+                else
+                {
+                    sql += $" {colName} = DEFAULT , ";
                 }
             }
 
@@ -126,7 +125,30 @@ namespace DataObjectBaseLibrary.DataObjects
                 return;
             }
 
-            if (propName == null)
+            if (this.ValidateUpdateRequest(propName))
+            {
+                Type t = this.GetType();
+                var props = t.GetProperties();
+                string condition = this.GetConditionForUpdate(props);
+                string defValues = this.GetDefaultColumns(props);
+                SqlParameter[] parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@Value", value),
+                };
+
+                string sql = $"UPDATE {t.Name} SET {propName} = @Value " +
+                    defValues + condition;
+
+                if (this.Db.PrepareAndExecuteNonQuery(commandText: sql, parameters: parameters) != 1)
+                {
+                    throw new InvalidOperationException("Can't update an non-existing record.");
+                }
+            }
+        }
+
+        private bool ValidateUpdateRequest(string propName)
+        {
+            if (string.IsNullOrEmpty(propName))
             {
                 throw new InvalidOperationException("Cannot update without a propertyName!");
             }
@@ -141,7 +163,8 @@ namespace DataObjectBaseLibrary.DataObjects
                 throw new InvalidOperationException("Updating Id or Default column not allowed.");
             }
 
-            this.UpdatePropertyInternal(value, propName, t);
+            // if execution comes this far, validation was successfull.
+            return true;
         }
 
         private void Populate(IResultRow data)
@@ -243,9 +266,9 @@ namespace DataObjectBaseLibrary.DataObjects
             var idCheck = (from p in t.GetProperties()
                           where Attribute.IsDefined(p, typeof(IdPropertyAttribute))
                           select p).Count();
-            if (idCheck > 1)
+            if (idCheck != 1)
             {
-                throw new InvalidOperationException("Populating by Id not supported for compound Primary Key.");
+                throw new InvalidOperationException($"Class {t.Name} has either zero or multiple IdProperty attributes defined.");
             }
 
             string sql = $"SELECT * FROM {t.Name} WHERE Id = @Id";
@@ -253,15 +276,15 @@ namespace DataObjectBaseLibrary.DataObjects
             {
                 new SqlParameter("@Id", id),
             };
-            var objectData = this.Db.GetResultAsDictionary(commandText: sql, parameters: parameters).First();
+            var objectData = this.Db.GetResult(commandText: sql, parameters: parameters).First();
             this.Populate(objectData);
         }
 
-        private SqlDataReader GetColumnInfo(string tableName)
+        private IResultTable GetColumnInfo(string tableName)
         {
             string sql = $"SELECT COLUMN_NAME, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS " +
                 $"WHERE TABLE_NAME = '{tableName}'";
-            return this.Db.PrepareAndExecuteQuery(commandText: sql);
+            return this.Db.GetResult(commandText: sql);
         }
 
         private string GetConditionForUpdate(PropertyInfo[] props)
@@ -302,25 +325,6 @@ namespace DataObjectBaseLibrary.DataObjects
             }
 
             return output;
-        }
-
-        private void UpdatePropertyInternal<T>(T value, string propName, Type t)
-        {
-            var props = t.GetProperties();
-            string condition = this.GetConditionForUpdate(props);
-            string defValues = this.GetDefaultColumns(props);
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@Value", value),
-            };
-
-            string sql = $"UPDATE {t.Name} SET {propName} = @Value " +
-                defValues + condition;
-
-            if (this.Db.PrepareAndExecuteNonQuery(commandText: sql, parameters: parameters) != 1)
-            {
-                throw new InvalidOperationException("Can't update an non-existing record.");
-            }
         }
 
         private bool ValidateType(PropertyInfo prop, Type dataType)

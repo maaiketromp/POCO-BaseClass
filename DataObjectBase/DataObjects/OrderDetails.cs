@@ -4,6 +4,7 @@
 
 namespace DataObjectBaseLibrary.DataObjects
 {
+    using System;
     using System.Collections.Generic;
     using DataObjectBaseLibrary.Attributes;
     using DataObjectBaseLibrary.Data;

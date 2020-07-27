@@ -20,7 +20,7 @@ namespace DataObjectBaseLibrary.Interfaces
         /// <param name="commandText">Sql commandtext.</param>
         /// <param name="parameters">SqlParameter array.</param>
         /// <returns>A IResultTable object, which can be cast to IEnumerable.</returns>
-        public IResultTable GetResult(string commandText, SqlParameter[] parameters);
+        public IResultTable GetResult(string commandText, SqlParameter[] parameters = null);
 
         /// <summary>
         /// Parses the query result to a List of Dictionaries.

@@ -7,14 +7,37 @@
     using DataObjectBaseLibrary.Helpers;
     using DataObjectBaseLibrary.Interfaces;
 
-    class MockDatabaseConnectorWrapper : IDatabaseConnectorWrapper
+    class MockDatabaseConnectorWrapperColumnResult : IDatabaseConnectorWrapper
     {
         public IResultTable GetResult(string commandText, SqlParameter[] parameters)
         {
-            ColumnInfo[] colInfo = new ColumnInfo[0];
+            string[] columnNames = new string[]
+            {
+                "Id", "CustomerId", "EmployeeId", "ShippingDate", "TimeOfOrder",
+            };
+            string[] defaultVals = new string[]
+            {
+                null, null, null, null, "(getdate())",
+            };
+
+            ColumnInfo[] colInfo = new ColumnInfo[]
+            {
+                new ColumnInfo("COLUMN_NAME", typeof(string)),
+                new ColumnInfo("COLUMN_DEFAULT", typeof(string)),
+            };
             ResultTable result = new ResultTable(colInfo);
-            ResultRow row = new ResultRow(new object[0], colInfo);
-            result.Add(row);
+
+            for (int i = 0; i < columnNames.Length; i++)
+            {
+                object[] cells = new object[]
+                {
+                    columnNames[i],
+                    defaultVals[i],
+                };
+
+                result.Add(new ResultRow(cells, colInfo));
+            }
+
             return result;
         }
 
