@@ -44,9 +44,10 @@ namespace DataObjectBaseExample.Models
                 new SqlParameter("@Id", SqlDbType.Int, customerId),
             };
 
-            this.db.GetResultAsDictionary(
+            this.db.GetResult(
                 commandText: sql, 
                 parameters: parameters)
+                .ToList()
                 .ForEach(r => outputList.Add(new Order(this.db, r)));
 
             return outputList;

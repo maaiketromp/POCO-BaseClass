@@ -59,86 +59,12 @@ namespace DataObjectBaseLibrary.Data
         }
 
         /// <inheritdoc/>
-        public List<Dictionary<string, DatabaseObject>> ExecuteQueryGetResult(
-            string commandText,
-            CommandType type = CommandType.Text,
-            SqlParameter[] parameters = null)
-        {
-            using var rdr = this.PrepareAndExecuteQuery(commandText, type, parameters);
-            var outputList = new List<Dictionary<string, DatabaseObject>>();
-
-            if (!rdr.HasRows)
-            {
-                return outputList;
-            }
-
-            var colTypes = this.GetColumnDictionary(rdr);
-
-            while (rdr.Read())
-            {
-                var row = new Dictionary<string, DatabaseObject>();
-
-                for (int i = 0; i < rdr.FieldCount; i++)
-                {
-                    string colName = rdr.GetName(i);
-                    if (rdr[i] is DBNull)
-                    {
-                        if (row.ContainsKey(colName))
-                        {
-                            // do nothing.
-                        }
-                        else
-                        {
-                            // replace DBNull object with a null value.
-                            row.Add(colName, new DatabaseObject(colTypes[colName], null));
-                        }
-                    }
-                    else
-                    {
-                        if (row.ContainsKey(colName))
-                        {
-                            // override previous entry.
-                            row[colName] = new DatabaseObject(colTypes[colName], rdr[i]);
-                        }
-                        else
-                        {
-                            row.Add(colName, new DatabaseObject(colTypes[colName], rdr[i]));
-                        }
-                    }
-                }
-
-                outputList.Add(row);
-            }
-
-            rdr.Close();
-            return outputList;
-        }
-
-        /// <inheritdoc/>
         public void Dispose()
         {
             if (this.connection.State != 0)
             {
                 this.connection.Close();
             }
-        }
-
-        private Dictionary<string, Type> GetColumnDictionary(SqlDataReader rdr)
-        {
-            var columns = from col in rdr.GetColumnSchema()
-                          select new { Name = col.ColumnName, Type = col.DataType };
-
-            var outputDict = new Dictionary<string, Type>();
-            foreach (var col in columns)
-            {
-                // check for duplicate column names.
-                if (!outputDict.ContainsKey(col.Name))
-                {
-                    outputDict.Add(col.Name, col.Type);
-                }
-            }
-
-            return outputDict;
         }
 
         private void Initialize()

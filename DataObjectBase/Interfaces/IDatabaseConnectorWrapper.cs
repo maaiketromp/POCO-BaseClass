@@ -23,16 +23,6 @@ namespace DataObjectBaseLibrary.Interfaces
         public IResultTable GetResult(string commandText, SqlParameter[] parameters = null);
 
         /// <summary>
-        /// Parses the query result to a List of Dictionaries.
-        /// </summary>
-        /// <param name="commandText">Sql command text.</param>
-        /// <param name="parameters">SqlParameter array.</param>
-        /// <returns>A list of dictionaries.</returns>
-        public List<Dictionary<string, DatabaseObject>> GetResultAsDictionary(
-            string commandText,
-            SqlParameter[] parameters = null);
-
-        /// <summary>
         /// Prepares and executes a non query.
         /// </summary>
         /// <param name="commandText">Sql Commandtext.</param>

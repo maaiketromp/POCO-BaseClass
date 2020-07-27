@@ -7,37 +7,73 @@
     using DataObjectBaseLibrary.DataObjects;
 
     [TestClass]
-    public class DataObjectBaseUpdatePropertyTests
+    class DataObjectBaseExceptionTests
     {
         [TestMethod()]
-        public void UpdatePropertyMethodTest()
+        public void TryPopulateNonExistingProperty()
         {
-            // arrange
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
-            bool activeUpdate = true;
-            TestClass test = new TestClass(mockWrapper, activeUpdate);
+            IResultRow mockData = new MockTestClassDataExtraProp();
+            bool caught = false;
 
             try
             {
-                test.IntVal = 1;
+                TestClass test = new TestClass(mockWrapper, mockData);
+            }
+            catch (InvalidOperationException)
+            {
+                caught = true;
+                // expected behaviour, test runs correctly.
             }
             catch (Exception e)
             {
                 Assert.Fail($"Exception {e} \nMessage: {e.Message}\nStacktrace: {e.StackTrace}");
             }
+
+            if (!caught)
+            {
+                Assert.Fail("Test is expected to throw exception but does not.");
+            }
         }
 
         [TestMethod()]
-        public void UpdateIdPropertyTest()
+        public void TryPopulateWithWrongDataType()
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
-            bool activeUpdate = true;
-            var test = new MockClassUpdatePropertyWithDefaultAndIdProps(mockWrapper, activeUpdate);
+            IResultRow mockData = new MockPropertyWithWrongDataType();
+
             bool caught = false;
 
             try
             {
-                test.Id = 1;
+                TestClass test = new TestClass(mockWrapper, mockData);
+            }
+            catch (ArgumentException)
+            {
+                caught = true;
+                // expected behaviour, test runs correctly.
+            }
+            catch (Exception e)
+            {
+                Assert.Fail($"Exception {e} \nMessage: {e.Message}\nStacktrace: {e.StackTrace}");
+            }
+
+            if (!caught)
+            {
+                Assert.Fail("Test is expected to throw exception but does not.");
+            }
+        }
+
+        [TestMethod()]
+        public void TryPopulateByIdWithoutPK()
+        {
+            IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
+            int testVal = 1;
+            bool caught = false;
+
+            try
+            {
+                MockClassWithoutIdProperty objectWithoutPK = new MockClassWithoutIdProperty(mockWrapper, testVal);
             }
             catch (InvalidOperationException)
             {
@@ -55,16 +91,15 @@
         }
 
         [TestMethod()]
-        public void UpdateDefaultPropertyTest()
+        public void TryPopulateByIdWithMultiplePKs()
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
-            bool activeUpdate = true;
-            var test = new MockClassUpdatePropertyWithDefaultAndIdProps(mockWrapper, activeUpdate);
+            int testVal = 1;
             bool caught = false;
 
             try
             {
-                test.Name = "test";
+                MockClassWithTwoIdProperties objectWithCompoundId = new MockClassWithTwoIdProperties(mockWrapper, testVal);
             }
             catch (InvalidOperationException)
             {
@@ -80,36 +115,5 @@
                 Assert.Fail("Test is expected to throw exception but does not.");
             }
         }
-
-        [TestMethod()]
-        public void UpdatePropertyWithoutPropertyNameTest()
-        {
-            IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
-            bool activeUpdate = true;
-            var test = new MockClassUpdatePropertyWithDefaultAndIdProps(mockWrapper, activeUpdate);
-            bool caught = false;
-
-            try
-            {
-                test.Address = "test";
-            }
-            catch (InvalidOperationException)
-            {
-                caught = true;
-            }
-            catch (Exception e)
-            {
-                Assert.Fail($"Exception {e} \nMessage: {e.Message}\nStacktrace: {e.StackTrace}");
-            }
-
-            if (!caught)
-            {
-                Assert.Fail("Test is expected to throw exception but does not.");
-            }
-        }
-
-
     }
-
-
 }

@@ -41,12 +41,6 @@
             return result;
         }
 
-        public List<Dictionary<string, DatabaseObject>> GetResultAsDictionary(string commandText, SqlParameter[] parameters = null)
-        {
-            var output = new List<Dictionary<string, DatabaseObject>>();
-            return output;
-        }
-
         public int PrepareAndExecuteNonQuery(string commandText, CommandType type = CommandType.Text, SqlParameter[] parameters = null)
         {
             return 1;

@@ -37,17 +37,5 @@ namespace DataObjectBaseLibrary.Interfaces
             string commandText,
             CommandType type = CommandType.Text,
             SqlParameter[] parameters = null);
-
-        /// <summary>
-        /// Executes a query and parses the result into a list of dictionaries.
-        /// </summary>
-        /// <param name="commandText">Sql string.</param>
-        /// <param name="type">Command type.</param>
-        /// <param name="parameters">An array of SqlParameters to bind.</param>
-        /// <returns> A list of Dictionaries, containing object and column names.</returns>
-        public List<Dictionary<string, DatabaseObject>> ExecuteQueryGetResult(
-            string commandText,
-            CommandType type = CommandType.Text,
-            SqlParameter[] parameters = null);
     }
 }

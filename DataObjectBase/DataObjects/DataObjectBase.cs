@@ -5,13 +5,11 @@
 namespace DataObjectBaseLibrary.DataObjects
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using DataObjectBaseLibrary.Attributes;
-    using DataObjectBaseLibrary.Data;
     using DataObjectBaseLibrary.Interfaces;
     using Microsoft.Data.SqlClient;
 
@@ -44,19 +42,6 @@ namespace DataObjectBaseLibrary.DataObjects
             this.Db = db;
             this.ActiveUpdate = activeUpdate;
             this.PopulateById(id);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DataObjectBase"/> class.
-        /// </summary>
-        /// <param name="db">The databaseconnection.</param>
-        /// <param name="objectData">Data to populate object with.</param>
-        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public DataObjectBase(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate)
-        {
-            this.Db = db;
-            this.ActiveUpdate = activeUpdate;
-            this.Populate(objectData);
         }
 
         /// <summary>
@@ -199,51 +184,6 @@ namespace DataObjectBaseLibrary.DataObjects
                     {
                         Type type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
                         prop.SetValue(this, Convert.ChangeType(data[i], type));
-                    }
-                    else if (Nullable.GetUnderlyingType(prop.PropertyType) != null)
-                    {
-                        prop.SetValue(this, null);
-                    }
-                    else
-                    {
-                        // allows database entries to be null, while the property is not nullable.
-                    }
-                }
-            }
-
-            this.populating = false;
-        }
-
-        private void Populate(Dictionary<string, DatabaseObject> objectData)
-        {
-            this.populating = true;
-            Type t = this.GetType();
-            foreach (var unit in objectData)
-            {
-                PropertyInfo prop = t.GetProperty(unit.Key);
-
-                if (prop == null)
-                {
-                    // allows joins and larger queries.
-                    if (unit.Value.ValueObject == null)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Object does not contains a property {unit.Key}, but resultset contains a non-null value.");
-                    }
-                }
-                else if (!this.ValidateType(prop, unit.Value.ValueType))
-                {
-                    throw new ArgumentException($"Unsafe Conversion not permitted. Type validation for {prop.Name} failed.");
-                }
-                else
-                {
-                    if (unit.Value.ValueObject != null)
-                    {
-                        Type type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                        prop.SetValue(this, Convert.ChangeType(unit.Value.ValueObject, type));
                     }
                     else if (Nullable.GetUnderlyingType(prop.PropertyType) != null)
                     {

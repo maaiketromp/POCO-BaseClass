@@ -32,17 +32,6 @@ namespace DataObjectBaseLibrary.DataObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="OrderDetails"/> class.
         /// </summary>
-        /// <param name="db">Database connection.</param>
-        /// <param name="objectData">Data to populate the object.</param>
-        /// <param name="activeUpdate">A value indicating if the object should update any changes immeadiately to the database.</param>
-        public OrderDetails(IDatabaseConnectorWrapper db, Dictionary<string, DatabaseObject> objectData, bool activeUpdate = false)
-            : base(db, objectData, activeUpdate)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OrderDetails"/> class.
-        /// </summary>
         /// <param name="db">Database wrapper instance.</param>
         /// <param name="data">Data to populate object.</param>
         /// <param name="activeUpdate">Value indicating whether the object should update any changes immeadiately to the database.</param>

@@ -69,27 +69,5 @@ namespace DataObjectBaseLibrary.Data
         {
             return this.db.PrepareAndExecuteQuery(commandText, commandType, parameters);
         }
-
-        /// <inheritdoc/>
-        public List<Dictionary<string, DatabaseObject>> GetResultAsDictionary(string commandText, SqlParameter[] parameters = null)
-        {
-            var rowData = new Dictionary<string, DatabaseObject>();
-            var output = new List<Dictionary<string, DatabaseObject>>();
-
-            var result = this.GetResult(commandText, parameters);
-
-            for (int i = 0; i < result.Count(); i++)
-            {
-                for (int j = 0; j < result[i].Count(); j++)
-                {
-                    DatabaseObject addition = new DatabaseObject(result.GetColumnType(j), result[i].ElementAt(j));
-                    rowData.Add(result.GetColumnName(j), addition);
-                }
-
-                output.Add(rowData);
-            }
-
-            return output;
-        }
     }
 }
