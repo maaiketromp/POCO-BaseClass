@@ -37,5 +37,19 @@ namespace DataObjectBaseLibrary.Interfaces
             string commandText,
             CommandType type = CommandType.Text,
             SqlParameter[] parameters = null);
+
+        /// <summary>
+        /// Executes multiple non-queries on a Sql Server Database.
+        /// </summary>
+        /// <param name="commandText">Array of commandtexts.</param>
+        /// <param name="commandTypes">Command types.</param>
+        /// <param name="parameters">Parameter arrays.</param>
+        /// <param name="transactionName">name of the transaction.</param>
+        /// <returns>List of affected rows.</returns>
+        public List<int> PrepareAndExecuteTransaction(
+            string[] commandText,
+            CommandType[] commandTypes,
+            SqlParameter[][] parameters,
+            string transactionName);
     }
 }

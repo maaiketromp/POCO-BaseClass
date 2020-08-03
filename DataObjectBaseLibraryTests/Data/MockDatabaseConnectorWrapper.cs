@@ -27,5 +27,10 @@
         {
             return null;
         }
+
+        public List<int> PrepareAndExecuteTransaction(string[] commandText, CommandType[] commandTypes, SqlParameter[][] parameters, string transactionName)
+        {
+            return new List<int>();
+        }
     }
 }

@@ -4,6 +4,8 @@
 
 namespace DataObjectBaseLibrary.Interfaces
 {
+    using System.Collections.Generic;
+
     /// <summary>
     /// Interface for Populatable objects.
     /// </summary>
@@ -18,6 +20,6 @@ namespace DataObjectBaseLibrary.Interfaces
         /// Updates the populated object in the database.
         /// </summary>
         /// <returns>Number of rows affected. Returns zero on failure.</returns>
-        public int UpdateObject();
+        public List<int> UpdateObject();
     }
 }

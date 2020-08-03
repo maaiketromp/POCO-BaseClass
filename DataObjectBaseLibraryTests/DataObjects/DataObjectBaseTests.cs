@@ -4,12 +4,10 @@
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using DataObjectBaseLibraryTests.Data;
     using DataObjectBaseLibrary.Interfaces;
-    using System.Net.NetworkInformation;
 
     [TestClass()]
     public class DataObjectBaseTests
     {
-
         [TestMethod()]
         public void DataObjectBaseTest()
         {
@@ -25,13 +23,6 @@
             {
                 Assert.Fail($"Exception {e} \nMessage: {e.Message}\nStacktrace: {e.StackTrace}");
             }
-        }
-
-        [TestMethod()]
-        public void DataObjectBaseTest1()
-        {
-            // to be depricated: List<Dictionary<string, DatabaseObject>> 
-            Assert.Fail();
         }
 
         [TestMethod()]
@@ -105,33 +96,6 @@
             }
 
         }
-
-        /*TestClass testClass = new TestClass(mockWrapper)
-            {
-                Id = 1,
-                BoolVal = false,
-                NBoolVal = false,
-                IntVal = 1,
-                NIntVal = 1,
-                FloatVal = 1,
-                NFloatVal = 1,
-                DoubleVal = 1,
-                NDoubleVal = 1,
-                DecVal = 1,
-                NDecVal = 1,
-                CharVal = '1',
-                NCharVal = '1',
-                StringVal = "1",
-                DateTimeVal = DateTime.Now,
-                NDateTimeVal = DateTime.Now,
-            };
-
-            OrderDetails testOrderDetails = new OrderDetails(mockWrapper)
-            {
-                OrderId = 1,
-                ProductId = 1,
-                Quantity = 1,
-            };*/
     }
 }
 
