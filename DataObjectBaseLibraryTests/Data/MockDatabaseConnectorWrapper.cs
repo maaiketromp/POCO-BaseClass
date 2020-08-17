@@ -11,24 +11,32 @@
     {
         public IResultTable GetResult(string commandText, SqlParameter[] parameters)
         {
-            ColumnInfo[] colInfo = new ColumnInfo[0];
-            ResultTable result = new ResultTable(colInfo);
-            ResultRow row = new ResultRow(new object[0], colInfo);
-            result.Add(row);
-            return result;
+            return new ResultTable(new ColumnInfo[0]) {
+                new ResultRow(new object[0], new ColumnInfo[0]),
+                };
         }
 
-        public int PrepareAndExecuteNonQuery(string commandText, CommandType type = CommandType.Text, SqlParameter[] parameters = null)
+        public int PrepareAndExecuteNonQuery(
+            string commandText, 
+            CommandType type = CommandType.Text, 
+            SqlParameter[] parameters = null)
         {
             return 1;
         }
 
-        public SqlDataReader PrepareAndExecuteQuery(string commandText, CommandType commandType = CommandType.Text, SqlParameter[] parameters = null)
+        public SqlDataReader PrepareAndExecuteQuery(
+            string commandText, 
+            CommandType commandType = CommandType.Text, 
+            SqlParameter[] parameters = null)
         {
             return null;
         }
 
-        public List<int> PrepareAndExecuteTransaction(string[] commandText, CommandType[] commandTypes, SqlParameter[][] parameters, string transactionName)
+        public List<int> PrepareAndExecuteTransaction(
+            string[] commandText, 
+            CommandType[] commandTypes, 
+            SqlParameter[][] parameters, 
+            string transactionName)
         {
             return new List<int>();
         }

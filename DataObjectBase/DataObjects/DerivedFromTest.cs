@@ -50,6 +50,9 @@ namespace DataObjectBaseLibrary.DataObjects
         [IdProperty]
         public override int Id { get; set; }
 
+        /// <summary>
+        /// Gets or sets another test string value.
+        /// </summary>
         public string AnotherStringVal { get; set; }
     }
 }

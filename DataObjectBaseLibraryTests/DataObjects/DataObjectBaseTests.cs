@@ -46,10 +46,10 @@
             // Arrange
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
 
-            IResultRow mockTestClassData = new MockTestClassData();
-            IResultRow mockResultNulls = new MockTestClassDataNulls();
-            IResultRow mockOrderDetailsData = new MockOrderDetailsData();
-            IResultRow mockOrderDetailsDataNulls = new MockOrderDetailsDataNulls();
+            IResultRow mockTestClassData = MockData.GetTestClassMockData();
+            IResultRow mockResultNulls = MockData.GetTestClassNullsMockData();
+            IResultRow mockOrderDetailsData = MockData.GetOrderDetailsMockData();
+            IResultRow mockOrderDetailsDataNulls = MockData.GetOrderDetailsNullsMockData();
 
             try
             {
@@ -62,7 +62,7 @@
                 {
                     Assert.Fail("Object did not populate.");
                 }
-                if (test.Id != 1 || test3.ProductId != 1)
+                if (test.Id == 0 || test3.ProductId == 0)
                 {
                     Assert.Fail("Object did not populate.");
                 }
@@ -76,12 +76,12 @@
         [TestMethod()]
         public void UpdateObjectTest()
         {
-            IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapperColumnResult();
+            IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapperColumnData();
             Order testOrder = new Order(mockWrapper)
             {
-                Id = 1,
-                CustomerId = 2,
-                EmployeeId = 3,
+                Id = new Random().Next(),
+                CustomerId = new Random().Next(),
+                EmployeeId = new Random().Next(),
                 ShippingDate = DateTime.Now,
                 TimeOfOrder = DateTime.UtcNow,
             };
