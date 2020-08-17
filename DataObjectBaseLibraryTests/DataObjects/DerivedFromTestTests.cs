@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DataObjectBaseLibraryTests.Data;
+using DataObjectBaseLibrary.Interfaces;
 
 namespace DataObjectBaseLibrary.DataObjects.Tests
 {
@@ -20,8 +21,16 @@ namespace DataObjectBaseLibrary.DataObjects.Tests
         [TestMethod()]
         public void DerivedFromTestTest1()
         {
-            // populate by id. TODO.
-            Assert.Fail();
+            IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
+            MockDerivedFromTestData mockData = new MockDerivedFromTestData();
+            try
+            {
+                DerivedFromTest testObject = new DerivedFromTest(mockWrapper, 1);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail();
+            }
         }
 
         [TestMethod()]

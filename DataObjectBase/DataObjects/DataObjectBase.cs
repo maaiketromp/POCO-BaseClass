@@ -75,7 +75,7 @@ namespace DataObjectBaseLibrary.DataObjects
             List<CommandType> commandType = new List<CommandType>();
             List<string> commandTexts = new List<string>();
             List<SqlParameter[]> parameters = new List<SqlParameter[]>();
-            while (!t.IsEquivalentTo(typeof(DataObjectBase)))
+            for (; !t.IsEquivalentTo(typeof(DataObjectBase)); t = t.BaseType)
             {
                 var result = this.GetColumnInfo(t.Name);
                 string sql = $"UPDATE {t.Name} SET ";
@@ -103,8 +103,6 @@ namespace DataObjectBaseLibrary.DataObjects
                 commandTexts.Add(sql);
                 commandType.Add(CommandType.Text);
                 parameters.Add(null);
-
-                t = t.BaseType;
             }
 
             return this.Db.PrepareAndExecuteTransaction(
@@ -218,23 +216,24 @@ namespace DataObjectBaseLibrary.DataObjects
 
         private void PopulateById(int id)
         {
-            Type t = this.GetType();
-
-            var idCheck = (from p in t.GetProperties()
+            for (Type t = this.GetType(); !t.IsEquivalentTo(typeof(DataObjectBase)); t = t.BaseType)
+            {
+                var idCheck = (from p in t.GetProperties()
                           where Attribute.IsDefined(p, typeof(IdPropertyAttribute))
                           select p).Count();
-            if (idCheck != 1)
-            {
-                throw new InvalidOperationException($"Class {t.Name} has either zero or multiple IdProperty attributes defined.");
-            }
+                if (idCheck != 1)
+                {
+                    throw new InvalidOperationException($"Class {t.Name} has either zero or multiple IdProperty attributes defined.");
+                }
 
-            string sql = $"SELECT * FROM {t.Name} WHERE Id = @Id";
-            SqlParameter[] parameters = new SqlParameter[]
-            {
-                new SqlParameter("@Id", id),
-            };
-            var objectData = this.Db.GetResult(commandText: sql, parameters: parameters).First();
-            this.Populate(objectData);
+                string sql = $"SELECT * FROM {t.Name} WHERE Id = @Id";
+                SqlParameter[] parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@Id", id),
+                };
+                var objectData = this.Db.GetResult(commandText: sql, parameters: parameters).First();
+                this.Populate(objectData);
+            }
         }
 
         private IResultTable GetColumnInfo(string tableName)
