@@ -2,14 +2,12 @@
 using DataObjectBaseLibrary.Helpers;
 using DataObjectBaseLibrary.Interfaces;
 using Microsoft.Data.SqlClient;
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace DataObjectBaseLibraryTests.Data
 {
-    class MockDatabaseConnectorWrapperDerivedClass
+    class MockDatabaseConnectorWrapperColumnData
     : IDatabaseConnectorWrapper
     {
         public IResultTable GetResult(string commandText, SqlParameter[] parameters)
@@ -20,6 +18,8 @@ namespace DataObjectBaseLibraryTests.Data
                     return MockData.GetQueryResultForDerivedClassColumns();
                 case "SELECT COLUMN_NAME, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'TestClass'":
                     return MockData.GetQueryResultForTestClassColumns();
+                case "SELECT COLUMN_NAME, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Order'":
+                    return MockData.GetQueryResultForOrderColumns();
                 default:
                     return new ResultTable(new ColumnInfo[0])
                     {

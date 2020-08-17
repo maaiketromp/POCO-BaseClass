@@ -95,7 +95,7 @@ namespace DataObjectBaseLibrary.Data
 
                 transaction.Commit();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 try
                 {

@@ -1,25 +1,22 @@
 ﻿namespace DataObjectBaseLibraryTests.Data
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     using DataObjectBaseLibrary.Attributes;
     using DataObjectBaseLibrary.DataObjects;
     using DataObjectBaseLibrary.Interfaces;
 
-    public class MockClassUpdatePropertyWithDefaultAndIdProps : DataObjectBase
+    internal class DataObjectIdAndDefaultPropertyWithUpdate : DataObjectBase
     {
         private int id;
         private string name;
         private string address;
 
-        public MockClassUpdatePropertyWithDefaultAndIdProps(IDatabaseConnectorWrapper wrapper, bool activeUpdate = false)
+        internal DataObjectIdAndDefaultPropertyWithUpdate(IDatabaseConnectorWrapper wrapper, bool activeUpdate = false)
             : base (wrapper, activeUpdate)
         {
         }
 
         [IdProperty]
-        public int Id 
+        internal int Id 
         { 
             get => this.id;
             set 
@@ -33,7 +30,7 @@
         }
 
         [DefaultColumn]
-        public string Name
+        internal string Name
         {
             get => this.name;
             set
@@ -46,7 +43,7 @@
             }
         }
 
-        public string Address
+        internal string Address
         {
             get => this.address;
             set

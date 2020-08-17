@@ -1,4 +1,4 @@
-﻿namespace DataObjectBaseLibraryTests.DataObjects
+﻿namespace DataObjectBaseLibraryTests.DataObjects.Tests
 {
     using System;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -6,14 +6,14 @@
     using DataObjectBaseLibraryTests.Data;
     using DataObjectBaseLibrary.DataObjects;
 
-    [TestClass]
+    [TestClass()]
     class DataObjectBaseExceptionTests
     {
         [TestMethod()]
-        public void TryPopulateNonExistingProperty()
+        internal void TryPopulateNonExistingProperty()
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
-            IResultRow mockData = new MockTestClassDataExtraProp();
+            IResultRow mockData = MockData.GetExtraPropMockData();
             bool caught = false;
 
             try
@@ -37,10 +37,11 @@
         }
 
         [TestMethod()]
-        public void TryPopulateWithWrongDataType()
+        internal void TryPopulateWithWrongDataType()
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
-            IResultRow mockData = new MockPropertyWithWrongDataType();
+
+            IResultRow mockData = MockData.GetPropertyWithWrongDataTypeMockData();
 
             bool caught = false;
 
@@ -65,7 +66,7 @@
         }
 
         [TestMethod()]
-        public void TryPopulateByIdWithoutPK()
+        internal void TryPopulateByIdWithoutPK()
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
             int testVal = 1;
@@ -73,7 +74,7 @@
 
             try
             {
-                MockClassWithoutIdProperty objectWithoutPK = new MockClassWithoutIdProperty(mockWrapper, testVal);
+                DataObjectWithoutIdProperty objectWithoutPK = new DataObjectWithoutIdProperty(mockWrapper, testVal);
             }
             catch (InvalidOperationException)
             {
@@ -91,7 +92,7 @@
         }
 
         [TestMethod()]
-        public void TryPopulateByIdWithMultiplePKs()
+        internal void TryPopulateByIdWithMultiplePKs()
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
             int testVal = 1;
@@ -99,7 +100,7 @@
 
             try
             {
-                MockClassWithTwoIdProperties objectWithCompoundId = new MockClassWithTwoIdProperties(mockWrapper, testVal);
+                DataObjectWithTwoIdProperties objectWithCompoundId = new DataObjectWithTwoIdProperties(mockWrapper, testVal);
             }
             catch (InvalidOperationException)
             {

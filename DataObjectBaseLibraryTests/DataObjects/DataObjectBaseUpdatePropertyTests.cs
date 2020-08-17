@@ -32,7 +32,7 @@
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
             bool activeUpdate = true;
-            var test = new MockClassUpdatePropertyWithDefaultAndIdProps(mockWrapper, activeUpdate);
+            var test = new DataObjectIdAndDefaultPropertyWithUpdate(mockWrapper, activeUpdate);
             bool caught = false;
 
             try
@@ -59,7 +59,7 @@
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
             bool activeUpdate = true;
-            var test = new MockClassUpdatePropertyWithDefaultAndIdProps(mockWrapper, activeUpdate);
+            var test = new DataObjectIdAndDefaultPropertyWithUpdate(mockWrapper, activeUpdate);
             bool caught = false;
 
             try
@@ -86,7 +86,7 @@
         {
             IDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
             bool activeUpdate = true;
-            var test = new MockClassUpdatePropertyWithDefaultAndIdProps(mockWrapper, activeUpdate);
+            var test = new DataObjectIdAndDefaultPropertyWithUpdate(mockWrapper, activeUpdate);
             bool caught = false;
 
             try
