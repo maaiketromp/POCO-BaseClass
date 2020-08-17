@@ -59,6 +59,60 @@ namespace DataObjectBaseLibrary.Data
         }
 
         /// <inheritdoc/>
+        public List<int> PrepareAndExecuteTransaction(
+            string[] commandText,
+            CommandType[] commandTypes,
+            SqlParameter[][] parameters,
+            string transactionName)
+        {
+            if (commandText.Length != commandText.Length ||
+                commandText.Length != parameters.First().Length)
+            {
+                throw new InvalidOperationException("Input arrays must have the same lenghts");
+            }
+
+            List<int> returnValues = new List<int>();
+            SqlCommand command = this.connection.CreateCommand();
+            SqlTransaction transaction;
+
+            transaction = this.connection.BeginTransaction(transactionName);
+            command.Connection = this.connection;
+            command.Transaction = transaction;
+
+            try
+            {
+                for (int i = 0; i < commandText.Length; i++)
+                {
+                    command.CommandType = commandTypes[i];
+                    command.CommandText = commandText[i];
+                    if (parameters[i] != null)
+                    {
+                        command.Parameters.AddRange(parameters[i]);
+                    }
+
+                    returnValues.Add(command.ExecuteNonQuery());
+                }
+
+                transaction.Commit();
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    transaction.Rollback();
+                    return new List<int>() { 0 };
+                }
+                catch (Exception)
+                {
+                    // log exception.
+                    return new List<int>() { -1 };
+                }
+            }
+
+            return returnValues;
+        }
+
+        /// <inheritdoc/>
         public void Dispose()
         {
             if (this.connection.State != 0)

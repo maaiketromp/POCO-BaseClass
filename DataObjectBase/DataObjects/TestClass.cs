@@ -52,7 +52,7 @@ namespace DataObjectBaseLibrary.DataObjects
         /// Gets or sets an Id property.
         /// </summary>
         [IdProperty]
-        public int Id { get; set; }
+        public virtual int Id { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether a test value is true or false.

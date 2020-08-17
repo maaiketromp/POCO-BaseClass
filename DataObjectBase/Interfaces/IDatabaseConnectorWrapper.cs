@@ -45,5 +45,19 @@ namespace DataObjectBaseLibrary.Interfaces
             string commandText,
             CommandType commandType = CommandType.Text,
             SqlParameter[] parameters = null);
+
+        /// <summary>
+        /// Prepares and executes a transaction of multiple SqlCommands.
+        /// </summary>
+        /// <param name="commandText">An array of commandTexts.</param>
+        /// <param name="commandTypes">An array of commandTypes.</param>
+        /// <param name="parameters">An array of SqlParameters.</param>
+        /// <param name="transactionName">A name for the transaction.</param>
+        /// <returns>A list of affected rows, in order of input data.</returns>
+        public List<int> PrepareAndExecuteTransaction(
+            string[] commandText,
+            CommandType[] commandTypes,
+            SqlParameter[][] parameters,
+            string transactionName);
     }
 }

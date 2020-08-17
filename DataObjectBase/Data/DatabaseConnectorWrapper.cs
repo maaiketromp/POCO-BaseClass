@@ -69,5 +69,18 @@ namespace DataObjectBaseLibrary.Data
         {
             return this.db.PrepareAndExecuteQuery(commandText, commandType, parameters);
         }
+
+        public List<int> PrepareAndExecuteTransaction(
+            string[] commandText,
+            CommandType[] commandTypes,
+            SqlParameter[][] parameters,
+            string transactionName)
+        {
+            return this.db.PrepareAndExecuteTransaction(
+                commandText,
+                commandTypes,
+                parameters,
+                transactionName);
+        }
     }
 }
