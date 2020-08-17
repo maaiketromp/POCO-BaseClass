@@ -10,13 +10,13 @@
         private string name;
         private string address;
 
-        internal DataObjectIdAndDefaultPropertyWithUpdate(IDatabaseConnectorWrapper wrapper, bool activeUpdate = false)
+        public DataObjectIdAndDefaultPropertyWithUpdate(IDatabaseConnectorWrapper wrapper, bool activeUpdate = false)
             : base (wrapper, activeUpdate)
         {
         }
 
         [IdProperty]
-        internal int Id 
+        public int Id 
         { 
             get => this.id;
             set 
@@ -30,7 +30,7 @@
         }
 
         [DefaultColumn]
-        internal string Name
+        public string Name
         {
             get => this.name;
             set
@@ -43,7 +43,7 @@
             }
         }
 
-        internal string Address
+        public string Address
         {
             get => this.address;
             set
