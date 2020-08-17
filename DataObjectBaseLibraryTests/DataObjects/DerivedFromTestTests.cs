@@ -12,7 +12,14 @@ namespace DataObjectBaseLibrary.DataObjects.Tests
         public void DerivedFromTestTest()
         {
             MockDatabaseConnectorWrapper mockWrapper = new MockDatabaseConnectorWrapper();
-            DerivedFromTest testObject = new DerivedFromTest(mockWrapper);
+            try
+            {
+                DerivedFromTest testObject = new DerivedFromTest(mockWrapper);
+            }
+            catch (Exception e)
+            {
+                Assert.Fail($"Exception {e} \nMessage: {e.Message}\nStacktrace: {e.StackTrace}");
+            }
         }
 
         [TestMethod()]
@@ -24,9 +31,9 @@ namespace DataObjectBaseLibrary.DataObjects.Tests
             {
                 DerivedFromTest testObject = new DerivedFromTest(mockWrapper, 1);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Assert.Fail();
+                Assert.Fail($"Exception {e} \nMessage: {e.Message}\nStacktrace: {e.StackTrace}");
             }
         }
 
@@ -39,7 +46,15 @@ namespace DataObjectBaseLibrary.DataObjects.Tests
             {
                 AnotherStringVal = "A new TestString!"
             };
-            testObject.UpdateObject();
+
+            try
+            {
+                testObject.UpdateObject();
+            }
+            catch (Exception e)
+            {
+                Assert.Fail($"Exception {e} \nMessage: {e.Message}\nStacktrace: {e.StackTrace}");
+            }
         }
     }
 }
